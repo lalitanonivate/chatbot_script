@@ -1,3 +1,4 @@
+console.log("AI Script");
 /* =========================
    UTILITIES (logging + fetch)
    ========================= */
