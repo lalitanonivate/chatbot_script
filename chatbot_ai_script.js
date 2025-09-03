@@ -231,7 +231,8 @@ function ensureUserIdentity(){
 /* =========================
    API CALL (integrated)
    ========================= */
-const API_BASE = "https://anonivate-chatbot.onrender.com";
+//const API_BASE = "https://anonivate-chatbot.onrender.com";
+const API_BASE = "https://chatbot-j42r.onrender.com/chat";
 let brandname = 'Anoni';
 const scripts = document.querySelectorAll('script[brandname]');
 scripts.forEach(script => {
