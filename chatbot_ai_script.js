@@ -229,7 +229,7 @@ function ensureUserIdentity(){
 }
 
 /* =========================
-   API CALL (integrated)
+   API CALL (integrated) API url
    ========================= */
 //const API_BASE = "https://anonivate-chatbot.onrender.com";
 const API_BASE = "https://chatbot-j42r.onrender.com/chat";
