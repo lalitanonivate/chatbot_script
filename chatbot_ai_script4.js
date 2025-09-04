@@ -68,16 +68,16 @@ document.body.appendChild(chatToggle);
 
 const chatContainer = document.createElement("div");
 chatContainer.style.cssText = `
-  position:fixed;bottom:90px;right:20px;width:380px;height:520px;background:#fff;border-radius:20px;
-  box-shadow:0 10px 25px rgba(0,0,0,.3);display:none;flex-direction:column;overflow:hidden;z-index:999;
-  font-family:'Poppins',sans-serif;`;
+  position:fixed;bottom:90px;right:20px;width:400px;height:540px;background:linear-gradient(135deg,#f8fafc 0%,#e0e7ff 100%);border-radius:24px;
+  box-shadow:0 12px 32px rgba(0,0,0,.22);display:none;flex-direction:column;overflow:hidden;z-index:999;
+  font-family:'Poppins',sans-serif;backdrop-filter:blur(2px);border:1.5px solid #c7d2fe;`;
 document.body.appendChild(chatContainer);
 
 // Header
 const header = document.createElement("div");
 header.style.cssText = `
-  padding:16px;background:linear-gradient(135deg,#2563eb,#1e40af);color:#fff;font-weight:600;
-  display:flex;justify-content:space-between;align-items:center;font-size:16px;letter-spacing:.3px;`;
+  padding:18px 20px;background:linear-gradient(135deg,#2563eb 60%,#6366f1 100%);color:#fff;font-weight:700;
+  display:flex;justify-content:space-between;align-items:center;font-size:17px;letter-spacing:.3px;box-shadow:0 2px 8px rgba(37,99,235,.08);`;
 header.innerHTML = `<span>🤖 Chatbot • AI Agent <span id="who" class="chip" style="display:none"></span></span>`;
 const closeBtn = document.createElement("button");
 closeBtn.innerText = "×";
@@ -88,22 +88,33 @@ chatContainer.appendChild(header);
 
 // Messages
 const messages = document.createElement("div");
-messages.style.cssText = `flex:1;overflow-y:auto;padding:14px;background:#f9fafb;`;
+messages.style.cssText = `flex:1;overflow-y:auto;padding:18px 16px 14px 16px;background:transparent;`;
 chatContainer.appendChild(messages);
 
 // Input
 const inputWrapper = document.createElement("div");
-inputWrapper.style.cssText = `display:flex;align-items:center;padding:10px;border-top:1px solid #eee;background:#fff;`;
+inputWrapper.style.cssText = `display:flex;align-items:center;padding:14px 16px;border-top:1.5px solid #e0e7ff;background:rgba(255,255,255,0.95);`;
 const input = document.createElement("input");
-input.className = "field";
+input.className = "field modern-input";
 input.type = "text";
-input.placeholder = "Reply to Chatbot...";
-input.style.borderRadius = "25px";
+input.placeholder = "Type your message...";
+input.style.cssText = `
+  flex:1;padding:14px 18px;font-size:15px;border:none;outline:none;border-radius:22px;
+  background:#f1f5f9;box-shadow:0 2px 8px rgba(99,102,241,.07);transition:box-shadow .2s,border .2s;
+  margin-right:10px;color:#222;min-width:0;
+`;
+input.onfocus = () => input.style.boxShadow = "0 0 0 2px #6366f1";
+input.onblur  = () => input.style.boxShadow = "0 2px 8px rgba(99,102,241,.07)";
 const sendBtn = document.createElement("button");
 sendBtn.innerText = "➤";
-sendBtn.className = "submit";
+sendBtn.className = "submit modern-send";
 sendBtn.style.cssText = `
-  margin-left:8px;width:42px;height:42px;border-radius:50%;box-shadow:0 3px 8px rgba(37,99,235,.4)`;
+  margin-left:0;width:46px;height:46px;border-radius:50%;border:none;
+  background:linear-gradient(135deg,#6366f1 60%,#2563eb 100%);color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 12px rgba(99,102,241,.18);cursor:pointer;transition:background .2s,box-shadow .2s;outline:none;
+`;
+sendBtn.onmouseover = () => sendBtn.style.background = "linear-gradient(135deg,#2563eb 60%,#6366f1 100%)";
+sendBtn.onmouseout  = () => sendBtn.style.background = "linear-gradient(135deg,#6366f1 60%,#2563eb 100%)";
 inputWrapper.appendChild(input); inputWrapper.appendChild(sendBtn);
 chatContainer.appendChild(inputWrapper);
 
@@ -127,8 +138,8 @@ function addMessage(text, sender="user"){
     }
     const bubble = document.createElement("div");
     bubble.style.cssText = `
-      background:#f3f4f6;padding:12px 16px;border-radius:16px;max-width:75%;
-      font-size:14px;color:#111;line-height:1.4;box-shadow:0 2px 5px rgba(0,0,0,.08);`;
+      background:#f3f4f6;padding:14px 18px;border-radius:18px;max-width:75%;
+      font-size:15px;color:#222;line-height:1.5;box-shadow:0 2px 8px rgba(99,102,241,.08);`;
 
     if(sender==="typing"){
       bubble.innerHTML = `
@@ -145,8 +156,8 @@ function addMessage(text, sender="user"){
     const bubble = document.createElement("div");
     bubble.textContent = text; // user is plain text
     bubble.style.cssText = `
-      background:linear-gradient(135deg,#2563eb,#1e40af);color:#fff;padding:12px 16px;border-radius:16px;
-      max-width:75%;font-size:14px;line-height:1.4;box-shadow:0 2px 5px rgba(0,0,0,.2)`;
+      background:linear-gradient(135deg,#6366f1 60%,#2563eb 100%);color:#fff;padding:14px 18px;border-radius:18px;
+      max-width:75%;font-size:15px;line-height:1.5;box-shadow:0 2px 8px rgba(99,102,241,.18)`;
     wrap.appendChild(bubble);
   }
 
@@ -229,10 +240,9 @@ function ensureUserIdentity(){
 }
 
 /* =========================
-   API CALL (integrated) API url
+   API CALL (integrated)
    ========================= */
-//const API_BASE = "https://anonivate-chatbot.onrender.com";
-const API_BASE = "https://chatbot-j42r.onrender.com/chat";
+const API_BASE = "https://anonivate-chatbot.onrender.com/chat";
 let brandname = 'Anoni';
 const scripts = document.querySelectorAll('script[brandname]');
 scripts.forEach(script => {
