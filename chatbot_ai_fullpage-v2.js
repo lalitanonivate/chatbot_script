@@ -357,21 +357,15 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
           checkUserData: () => {
             const username = getCookie('chatbot_username');
             const email = getCookie('chatbot_email');
-            console.log('Current user data:');
-            console.log('Username:', username);
-            console.log('Email:', email);
-            console.log('Has user data:', username && email);
             return { username, email };
           },
           getSessionId: () => {
-            console.log('Current session ID:', sessionId);
             return sessionId;
           },
           getAllSessions: getAllSessions,
           createNewSession: () => {
             const newSessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             setCookie('chatbot_sessionId', newSessionId);
-            console.log('Created new session ID:', newSessionId);
             return newSessionId;
           },
           clearSessionId: () => {
@@ -423,11 +417,9 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
             const expires = new Date();
             expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
             document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
-            console.log(`Cookie set: ${name}=${value}`);
             
             // Also save to localStorage as backup
             localStorage.setItem(name, value);
-            console.log(`Also saved to localStorage: ${name}=${value}`);
             
             return true;
           } catch (error) {
@@ -447,7 +439,6 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
               while (c.charAt(0) === ' ') c = c.substring(1, c.length);
               if (c.indexOf(nameEQ) === 0) {
                 const value = c.substring(nameEQ.length, c.length);
-                console.log(`Cookie found: ${name}=${value}`);
                 return value;
               }
             }
@@ -455,17 +446,14 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
             // If not found in cookies, try localStorage
             const localValue = localStorage.getItem(name);
             if (localValue) {
-              console.log(`Found in localStorage: ${name}=${localValue}`);
               return localValue;
             }
             
-            console.log(`Not found in cookies or localStorage: ${name}`);
             return null;
           } catch (error) {
             console.log(`Cookie read failed, trying localStorage: ${name}`);
             const localValue = localStorage.getItem(name);
             if (localValue) {
-              console.log(`Found in localStorage: ${name}=${localValue}`);
               return localValue;
             }
             return null;
@@ -482,20 +470,17 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
             sessionId: sessionId
           });
           localStorage.setItem(storageKey, JSON.stringify(messages));
-          console.log(`Message saved for session: ${sessionId}`);
         }
         
         function loadMessagesFromStorage() {
           const storageKey = `chatbot_messages_${sessionId}`;
           const messages = JSON.parse(localStorage.getItem(storageKey) || '[]');
-          console.log(`Loaded ${messages.length} messages for session: ${sessionId}`);
           return messages;
         }
         
         function clearChatStorage() {
           const storageKey = `chatbot_messages_${sessionId}`;
           localStorage.removeItem(storageKey);
-          console.log(`Cleared messages for session: ${sessionId}`);
         }
         
         function getAllSessions() {
@@ -522,7 +507,6 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
           localStorage.removeItem('chatbot_username');
           localStorage.removeItem('chatbot_email');
           localStorage.removeItem('chatbot_sessionId');
-          console.log('User data and session cleared');
         }
         
         // Get user info from cookies or set defaults
@@ -535,17 +519,11 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
           const email = getCookie('chatbot_email');
           const hasUserData = username && email && username.trim() !== '' && email.trim() !== '';
           
-          console.log('Page load - checking user data...');
-          console.log('Username cookie:', username);
-          console.log('Email cookie:', email);
-          console.log('Has user data:', hasUserData);
-          
           if (hasUserData) {
             // Ensure form is hidden on page load
             const form = document.getElementById('userRegistrationForm');
             if (form) {
               form.style.display = 'none';
-              console.log('Form hidden on page load - user data exists');
             }
           }
         }
@@ -572,40 +550,29 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
           const hasUserData = username && email && username.trim() !== '' && email.trim() !== '';
           const hasMessages = widget.querySelector(".chat-area .msg-row");
           
-          console.log('Opening chat widget...');
-          console.log('Username cookie:', username);
-          console.log('Email cookie:', email);
-          console.log('Has user data:', hasUserData);
-          console.log('Has messages:', hasMessages);
-          
           if (!hasMessages) {
             // Load previous messages from localStorage
             const previousMessages = loadMessagesFromStorage();
             if (previousMessages.length > 0) {
               // Restore previous conversation
-              console.log('Restoring previous messages:', previousMessages.length);
               previousMessages.forEach(msg => {
                 addMsg(msg.text, msg.who, false); // Don't save again to avoid duplicates
               });
             } else {
               // First time - show welcome message
-              console.log('First time user - showing welcome message');
               setTimeout(() => addMsg(`Hi there! My name is ${botName} 👋. How can I help today?`, "bot"), 200);
             }
             
             // Show registration form if no user data exists
             if (!hasUserData) {
-              console.log('No user data found - showing registration form');
               setTimeout(() => {
                 document.getElementById('userRegistrationForm').style.display = 'block';
               }, 1000);
             } else {
-              console.log('User data exists - skipping registration form');
               // Ensure form is hidden
               document.getElementById('userRegistrationForm').style.display = 'none';
             }
           } else {
-            console.log('Messages already exist - not showing form');
             // Ensure form is hidden if messages already exist
             document.getElementById('userRegistrationForm').style.display = 'none';
           }
@@ -706,9 +673,6 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
               user_name: currentUserName
             };
             
-            console.log('API call with sessionId:', sessionId);
-            console.log('Request body:', requestBody);
-
             const url = `${API_CONFIG.baseUrl}?website_url=${encodeURIComponent(API_CONFIG.websiteUrl)}`;
             
             const response = await fetch(url, {
@@ -786,10 +750,6 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
             const username = document.getElementById("regUsername").value.trim();
             const email = document.getElementById("regEmail").value.trim();
             
-            console.log('Save button clicked');
-            console.log('Username:', username);
-            console.log('Email:', email);
-            
             if (!username || !email) {
               alert("Please fill in both name and email fields.");
               return;
@@ -799,20 +759,18 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
             const usernameSaved = setCookie('chatbot_username', username);
             const emailSaved = setCookie('chatbot_email', email);
             
-            console.log('Username saved successfully:', usernameSaved);
-            console.log('Email saved successfully:', emailSaved);
+           
             
             // Verify data was saved
             setTimeout(() => {
               const savedUsername = getCookie('chatbot_username');
               const savedEmail = getCookie('chatbot_email');
-              console.log('Verification - Saved username:', savedUsername);
-              console.log('Verification - Saved email:', savedEmail);
+      
               
               if (savedUsername === username && savedEmail === email) {
-                console.log('✅ User data saved and verified successfully!');
+                
               } else {
-                console.log('❌ User data verification failed!');
+                
               }
             }, 100);
             
