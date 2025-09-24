@@ -1,30 +1,35 @@
- (() => {
-      // --- 0) Helpers -----------------------------------------------------------
-      const once = (id, node) => {
-        if (document.getElementById(id)) return;
-        node.id = id;
-        document.head.appendChild(node);
-      };
+(() => {
+  // --- 0) Helpers -----------------------------------------------------------
+  const once = (id, node) => {
+    if (document.getElementById(id)) return;
+    node.id = id;
+    document.head.appendChild(node);
+  };
 
-      const run = () => {
-        // --- 1) Fonts -----------------------------------------------------------
-        const pre1 = document.createElement("link");
-        pre1.rel = "preconnect"; pre1.href = "https://fonts.googleapis.com";
-        const pre2 = document.createElement("link");
-        pre2.rel = "preconnect"; pre2.href = "https://fonts.gstatic.com"; pre2.crossOrigin = "anonymous";
-        const gfont1 = document.createElement("link");
-        gfont1.rel = "stylesheet";
-        gfont1.href = "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap";
-        const gfont2 = document.createElement("link");
-        gfont2.rel = "stylesheet";
-        gfont2.href = "https://fonts.googleapis.com/css2?family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap";
-        once("bdw-pre-gfonts-1", pre1);
-        once("bdw-pre-gfonts-2", pre2);
-        once("bdw-font-poppins", gfont1);
-        once("bdw-font-inclusive", gfont2);
+  const run = () => {
+    // --- 1) Fonts -----------------------------------------------------------
+    const pre1 = document.createElement("link");
+    pre1.rel = "preconnect";
+    pre1.href = "https://fonts.googleapis.com";
+    const pre2 = document.createElement("link");
+    pre2.rel = "preconnect";
+    pre2.href = "https://fonts.gstatic.com";
+    pre2.crossOrigin = "anonymous";
+    const gfont1 = document.createElement("link");
+    gfont1.rel = "stylesheet";
+    gfont1.href =
+      "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap";
+    const gfont2 = document.createElement("link");
+    gfont2.rel = "stylesheet";
+    gfont2.href =
+      "https://fonts.googleapis.com/css2?family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap";
+    once("bdw-pre-gfonts-1", pre1);
+    once("bdw-pre-gfonts-2", pre2);
+    once("bdw-font-poppins", gfont1);
+    once("bdw-font-inclusive", gfont2);
 
-        // --- 2) Styles ----------------------------------------------------------
-        const css = `
+    // --- 2) Styles ----------------------------------------------------------
+    const css = `
 :root {
   --font: "Inclusive Sans", sans-serif;
   --bg-canvas: #F7F4F2;
@@ -212,17 +217,17 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
 
 @media (max-width:640px){ #widget .composer{ position: sticky; bottom: 0 } }
 `;
-        const style = document.createElement("style");
-        style.textContent = css;
-        once("bdw-style", style);
+    const style = document.createElement("style");
+    style.textContent = css;
+    once("bdw-style", style);
 
-        // --- 3) DOM: Launcher + Widget -----------------------------------------
-        const wrap = document.createElement("div");
-        wrap.id = "bdw-root";
-        wrap.style.all = "unset"; // isolate inheritable glitches a bit
-        wrap.style.setProperty('--font', '"Inclusive Sans", sans-serif');
+    // --- 3) DOM: Launcher + Widget -----------------------------------------
+    const wrap = document.createElement("div");
+    wrap.id = "bdw-root";
+    wrap.style.all = "unset"; // isolate inheritable glitches a bit
+    wrap.style.setProperty("--font", '"Inclusive Sans", sans-serif');
 
-        const launcherHTML = `
+    const launcherHTML = `
 <button class="launcher" id="openWidget" aria-label="Open chat">
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none">
     <path d="M4.69 11.78 7.47 11.316c1.475-.246 2.631-1.402 2.877-2.877l.464-2.784h1.75l.464 2.784c.246 1.475 1.402 2.631 2.877 2.877L18.69 11.78v1.75l-2.784.464a3.5 3.5 0 0 0-2.877 2.877l-.464 2.784h-1.75l-.464-2.784a3.5 3.5 0 0 0-2.877-2.877L4.69 13.53v-1.75Z" fill="#2B2B2B" />
@@ -231,7 +236,7 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
   <span>Ask us anything</span>
 </button>`;
 
-        const widgetHTML = `
+    const widgetHTML = `
 <section class="widget" id="widget" role="dialog" aria-modal="true" aria-label="Chat and contact">
   <div class="topbar">
     <div class="logo" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="105" height="51" viewBox="0 0 105 51" fill="none">
@@ -368,565 +373,582 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
 </section>
 `;
 
-        wrap.innerHTML = launcherHTML + widgetHTML;
-        document.body.appendChild(wrap);
-        
-        // Check user data on page load
-        checkUserDataOnLoad();
-        
-        // Add test functions to global scope for debugging
-        window.testChatbot = {
-          clearUserData: clearUserData,
-          clearChatStorage: clearChatStorage,
-          getCookie: getCookie,
-          setCookie: setCookie,
-          checkUserData: () => {
-            const username = getCookie('chatbot_username');
-            const email = getCookie('chatbot_email');
-            console.log('Current user data:');
-            console.log('Username:', username);
-            console.log('Email:', email);
-            console.log('Has user data:', username && email);
-            return { username, email };
-          },
-          getSessionId: () => {
-            console.log('Current session ID:', sessionId);
-            return sessionId;
-          },
-          getAllSessions: getAllSessions,
-          createNewSession: () => {
-            const newSessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            setCookie('chatbot_sessionId', newSessionId);
-            console.log('Created new session ID:', newSessionId);
-            return newSessionId;
-          },
-          clearSessionId: () => {
-            try {
-              document.cookie = 'chatbot_sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-            } catch (error) {
-              console.log('Cookie clear failed');
-            }
-            localStorage.removeItem('chatbot_sessionId');
-            console.log('Session ID cleared');
-          }
-        };
+    wrap.innerHTML = launcherHTML + widgetHTML;
+    document.body.appendChild(wrap);
 
-        // --- 4) Behavior --------------------------------------------------------
-        // Dynamic bot name detection (similar to brandname pattern)
-        let botName = 'Botty';
-        const scripts = document.querySelectorAll('script[botname]');
-        scripts.forEach(script => {
-          const bot = script.getAttribute('botname');
-          if(bot){
-              botName = bot;
-          }
-        });
+    // Check user data on page load
+    checkUserDataOnLoad();
 
-        // API Configuration
-        const API_CONFIG = {
-          baseUrl: "https://anonivate-chatbot-9u9k.onrender.com/chat",
-          websiteUrl: window.location.origin || ""
-        };
+    // Add test functions to global scope for debugging
+    window.testChatbot = {
+      clearUserData: clearUserData,
+      clearChatStorage: clearChatStorage,
+      getCookie: getCookie,
+      setCookie: setCookie,
+      checkUserData: () => {
+        const username = getCookie("chatbot_username");
+        const email = getCookie("chatbot_email");
+        return { username, email };
+      },
+      getSessionId: () => {
+        return sessionId;
+      },
+      getAllSessions: getAllSessions,
+      createNewSession: () => {
+        const newSessionId =
+          "session_" +
+          Date.now() +
+          "_" +
+          Math.random().toString(36).substr(2, 9);
+        setCookie("chatbot_sessionId", newSessionId);
+        return newSessionId;
+      },
+      clearSessionId: () => {
+        try {
+          document.cookie =
+            "chatbot_sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        } catch (error) {}
+        localStorage.removeItem("chatbot_sessionId");
+      },
+    };
 
-        // Generate or retrieve session ID
-        function getOrCreateSessionId() {
-          let sessionId = getCookie('chatbot_sessionId');
-          if (!sessionId) {
-            sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            setCookie('chatbot_sessionId', sessionId);
-            console.log('Created new session ID:', sessionId);
-          } else {
-            console.log('Retrieved existing session ID:', sessionId);
-          }
-          return sessionId;
-        }
-        
-        const sessionId = getOrCreateSessionId();
-        
-        // Cookie and localStorage management with fallback
-        function setCookie(name, value, days = 365) {
-          try {
-            const expires = new Date();
-            expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-            document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
-            console.log(`Cookie set: ${name}=${value}`);
-            
-            // Also save to localStorage as backup
-            localStorage.setItem(name, value);
-            console.log(`Also saved to localStorage: ${name}=${value}`);
-            
-            return true;
-          } catch (error) {
-            console.log(`Cookie failed, using localStorage: ${name}=${value}`);
-            localStorage.setItem(name, value);
-            return false;
-          }
-        }
-        
-        function getCookie(name) {
-          try {
-            // First try to get from cookies
-            const nameEQ = name + "=";
-            const ca = document.cookie.split(';');
-            for(let i = 0; i < ca.length; i++) {
-              let c = ca[i];
-              while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-              if (c.indexOf(nameEQ) === 0) {
-                const value = c.substring(nameEQ.length, c.length);
-                console.log(`Cookie found: ${name}=${value}`);
-                return value;
-              }
-            }
-            
-            // If not found in cookies, try localStorage
-            const localValue = localStorage.getItem(name);
-            if (localValue) {
-              console.log(`Found in localStorage: ${name}=${localValue}`);
-              return localValue;
-            }
-            
-            console.log(`Not found in cookies or localStorage: ${name}`);
-            return null;
-          } catch (error) {
-            console.log(`Cookie read failed, trying localStorage: ${name}`);
-            const localValue = localStorage.getItem(name);
-            if (localValue) {
-              console.log(`Found in localStorage: ${name}=${localValue}`);
-              return localValue;
-            }
-            return null;
-          }
-        }
-        
-        function saveMessageToStorage(message) {
-          const storageKey = `chatbot_messages_${sessionId}`;
-          const messages = JSON.parse(localStorage.getItem(storageKey) || '[]');
-          messages.push({
-            text: message.text,
-            who: message.who,
-            timestamp: Date.now(),
-            sessionId: sessionId
-          });
-          localStorage.setItem(storageKey, JSON.stringify(messages));
-          console.log(`Message saved for session: ${sessionId}`);
-        }
-        
-        function loadMessagesFromStorage() {
-          const storageKey = `chatbot_messages_${sessionId}`;
-          const messages = JSON.parse(localStorage.getItem(storageKey) || '[]');
-          console.log(`Loaded ${messages.length} messages for session: ${sessionId}`);
-          return messages;
-        }
-        
-        function clearChatStorage() {
-          const storageKey = `chatbot_messages_${sessionId}`;
-          localStorage.removeItem(storageKey);
-          console.log(`Cleared messages for session: ${sessionId}`);
-        }
-        
-        function getAllSessions() {
-          const sessions = [];
-          for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.startsWith('chatbot_messages_')) {
-              const sessionId = key.replace('chatbot_messages_', '');
-              sessions.push(sessionId);
-            }
-          }
-          return sessions;
-        }
-        
-        function clearUserData() {
-          // Clear from both cookies and localStorage
-          try {
-            document.cookie = 'chatbot_username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-            document.cookie = 'chatbot_email=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-            document.cookie = 'chatbot_sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-          } catch (error) {
-            console.log('Cookie clear failed');
-          }
-          localStorage.removeItem('chatbot_username');
-          localStorage.removeItem('chatbot_email');
-          localStorage.removeItem('chatbot_sessionId');
-          console.log('User data and session cleared');
-        }
-        
-        // Get user info from cookies or set defaults
-        const userEmail = getCookie('chatbot_email') || 'user@example.com';
-        const userName = getCookie('chatbot_username') || 'User';
-        
-        // Check cookies on page load and hide form if user data exists
-        function checkUserDataOnLoad() {
-          const username = getCookie('chatbot_username');
-          const email = getCookie('chatbot_email');
-          const hasUserData = username && email && username.trim() !== '' && email.trim() !== '';
-          
-          console.log('Page load - checking user data...');
-          console.log('Username cookie:', username);
-          console.log('Email cookie:', email);
-          console.log('Has user data:', hasUserData);
-          
-          if (hasUserData) {
-            // Ensure form is hidden on page load
-            const form = document.getElementById('userRegistrationForm');
-            if (form) {
-              form.style.display = 'none';
-              console.log('Form hidden on page load - user data exists');
-            }
-          }
-        }
-
-        // Elements
-        const openBtn = document.getElementById("openWidget");
-        const widget = document.getElementById("widget");
-        const closeBtn = document.getElementById("closeWidget");
-        const tabs = widget.querySelectorAll(".tab");
-        const pages = {
-          chat: document.getElementById("page-chat"),
-          contact: document.getElementById("page-contact"),
-          book: document.getElementById("page-book")
-        };
-
-        // Open from floating button → fullscreen
-        openBtn.addEventListener("click", () => {
-          widget.style.display = "flex";
-          document.body.style.overflow = "hidden";
-          
-          // Check if this is the first time or if user data exists
-          const username = getCookie('chatbot_username');
-          const email = getCookie('chatbot_email');
-          const hasUserData = username && email && username.trim() !== '' && email.trim() !== '';
-          const hasMessages = widget.querySelector(".chat-area .msg-row");
-          
-          console.log('Opening chat widget...');
-          console.log('Username cookie:', username);
-          console.log('Email cookie:', email);
-          console.log('Has user data:', hasUserData);
-          console.log('Has messages:', hasMessages);
-          
-          if (!hasMessages) {
-            // Load previous messages from localStorage
-            const previousMessages = loadMessagesFromStorage();
-            if (previousMessages.length > 0) {
-              // Restore previous conversation
-              console.log('Restoring previous messages:', previousMessages.length);
-              previousMessages.forEach(msg => {
-                addMsg(msg.text, msg.who, false); // Don't save again to avoid duplicates
-              });
-            } else {
-              // First time - show welcome message
-              console.log('First time user - showing welcome message');
-              setTimeout(() => addMsg(`Hi there! My name is ${botName} 👋. How can I help today?`, "bot"), 200);
-            }
-            
-            // Show registration form if no user data exists
-            if (!hasUserData) {
-              console.log('No user data found - showing registration form');
-              setTimeout(() => {
-                document.getElementById('userRegistrationForm').style.display = 'block';
-              }, 1000);
-            } else {
-              console.log('User data exists - skipping registration form');
-              // Ensure form is hidden
-              document.getElementById('userRegistrationForm').style.display = 'none';
-            }
-          } else {
-            console.log('Messages already exist - not showing form');
-            // Ensure form is hidden if messages already exist
-            document.getElementById('userRegistrationForm').style.display = 'none';
-          }
-        });
-
-        // Close (button + ESC)
-        const closeFullscreen = () => {
-          widget.style.display = "none";
-          document.body.style.overflow = "";
-        };
-        closeBtn.addEventListener("click", closeFullscreen);
-        document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeFullscreen(); });
-
-        // Tabs
-        tabs.forEach((t) => {
-          t.addEventListener("click", () => {
-            const page = t.dataset.page;
-            if (!page) return;
-            tabs.forEach((x) => x.setAttribute("aria-selected", String(x === t)));
-            Object.values(pages).forEach((p) => p.classList.remove("active"));
-            pages[page].classList.add("active");
-          });
-        });
-
-        // Chat mechanics
-        const messages = document.getElementById("messages");
-        const input = document.getElementById("input");
-        const send = document.getElementById("send");
-
-        function addMsg(text, who = "user", saveToStorage = true) {
-          const row = document.createElement("div");
-          row.className = "msg-row " + (who === "user" ? "user" : "bot");
-
-          if (who === "bot") {
-            // Bot bubble (avatar on the left, name above bubble) – unchanged
-            const av = document.createElement("div"); av.className = "avatar";
-            row.appendChild(av);
-            const col = document.createElement("div");
-            const name = document.createElement("div"); name.className = "who"; name.textContent = botName;
-            const bubble = document.createElement("div"); bubble.className = "bubble"; bubble.innerHTML = text;
-            col.appendChild(name); col.appendChild(bubble); row.appendChild(col);
-          } else {
-            const bubble = document.createElement("div"); bubble.className = "bubble"; bubble.textContent = text;
-            row.appendChild(bubble);
-          }
-
-          messages.appendChild(row);
-          messages.scrollTop = messages.scrollHeight;
-          
-          // Save message to localStorage
-          if (saveToStorage) {
-            saveMessageToStorage({ text, who });
-          }
-        }
-
-        // Typing indicator: avatar + who inside the SAME div (meta), as requested
-        function addTyping() {
-          const row = document.createElement("div");
-          row.className = "msg-row bot";
-          row.id = "typing";
-
-          const col = document.createElement("div");
-
-          const meta = document.createElement("div");
-          meta.className = "meta";
-          const av = document.createElement("div"); av.className = "avatar";
-          const name = document.createElement("div"); name.className = "who"; name.textContent = botName;
-          meta.appendChild(av); meta.appendChild(name);
-
-          const tile = document.createElement("div");
-          tile.className = "typing";
-          tile.innerHTML = '<span class="dots"><i></i><i></i><i></i></span>';
-
-          col.appendChild(meta);
-          col.appendChild(tile);
-
-          row.appendChild(col);
-          messages.appendChild(row);
-          messages.scrollTop = messages.scrollHeight;
-        }
-        function removeTyping() {
-          const t = document.getElementById("typing");
-          if (t) t.remove();
-        }
-
-        // API call function
-        async function callChatAPI(message) {
-          try {
-            // Get current user data from cookies
-            const currentUserEmail = getCookie('chatbot_email') || userEmail;
-            const currentUserName = getCookie('chatbot_username') || userName;
-            
-            const requestBody = {
-              assistant_name: botName,
-              message: message,
-              session_id: sessionId,
-              user_email: currentUserEmail,
-              user_name: currentUserName
-            };
-            
-            console.log('API call with sessionId:', sessionId);
-            console.log('Request body:', requestBody);
-
-            const url = `${API_CONFIG.baseUrl}?website_url=${encodeURIComponent(API_CONFIG.websiteUrl)}`;
-            
-            const response = await fetch(url, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(requestBody)
-            });
-
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            return data;
-          } catch (error) {
-            console.error('API call failed:', error);
-            throw error;
-          }
-        }
-
-        function handleSend() {
-          const text = (input.value || "").trim();
-          if (!text) return;
-          
-          // Add user message
-          addMsg(text, "user");
-          input.value = "";
-          
-          // Reset textarea height
-          autoResizeTextarea(input);
-          
-          // Show typing indicator
-          addTyping();
-          
-          // Call API
-          callChatAPI(text)
-            .then(response => {
-              removeTyping();
-              // Assuming the API returns a response with a message field
-              const botResponse = response.message || response.response || response.text || "I'm sorry, I couldn't process your request.";
-              addMsg(botResponse, "bot");
-            })
-            .catch(error => {
-              removeTyping();
-              console.error('Error:', error);
-              addMsg("Sorry, I'm having trouble connecting right now. Please try again later.", "bot");
-            });
-        }
-        // Auto-resize textarea function
-        function autoResizeTextarea(textarea) {
-          textarea.style.height = 'auto';
-          textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
-        }
-        
-        // Add auto-resize functionality to the input textarea
-        input.addEventListener('input', () => {
-          autoResizeTextarea(input);
-        });
-        
-        send.addEventListener("click", handleSend);
-        input.addEventListener("keydown", (e) => { 
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            handleSend(); 
-          }
-          // Shift+Enter allows for new lines in the input field
-        });
-
-        // Clear Memory functionality
-        const clearMemoryBtn = document.getElementById("clearMemory");
-        if (clearMemoryBtn) {
-          clearMemoryBtn.addEventListener("click", () => {
-            // Confirm before clearing
-            if (confirm("Are you sure you want to clear the chat memory? This will remove all previous messages.")) {
-              // Clear the messages display
-              const messagesContainer = document.getElementById("messages");
-              if (messagesContainer) {
-                messagesContainer.innerHTML = "";
-              }
-              
-              // Clear localStorage for current session
-              clearChatStorage();
-              
-              // Show a fresh welcome message
-              setTimeout(() => {
-                addMsg(`Hi there! My name is ${botName} 👋. How can I help today?`, "bot", false);
-              }, 100);
-              
-              console.log("Chat memory cleared successfully");
-            }
-          });
-        }
-
-        // User registration form handling
-        const saveUserInfo = document.getElementById("saveUserInfo");
-        if (saveUserInfo) {
-          saveUserInfo.addEventListener("click", () => {
-            const username = document.getElementById("regUsername").value.trim();
-            const email = document.getElementById("regEmail").value.trim();
-            
-            console.log('Save button clicked');
-            console.log('Username:', username);
-            console.log('Email:', email);
-
-            
-            if (!username || !email) {
-              alert("Please fill in both name and email fields.");
-              return;
-            }
-            
-            // Save to cookies (with localStorage fallback)
-            const usernameSaved = setCookie('chatbot_username', username);
-            const emailSaved = setCookie('chatbot_email', email);
-            
-            console.log('Username saved successfully:', usernameSaved);
-            console.log('Email saved successfully:', emailSaved);
-            
-            // Verify data was saved
-            setTimeout(() => {
-              const savedUsername = getCookie('chatbot_username');
-              const savedEmail = getCookie('chatbot_email');
-              console.log('Verification - Saved username:', savedUsername);
-              console.log('Verification - Saved email:', savedEmail);
-              
-              if (savedUsername === username && savedEmail === email) {
-                console.log('✅ User data saved and verified successfully!');
-              } else {
-                console.log('❌ User data verification failed!');
-              }
-            }, 100);
-            
-            // Hide registration form
-            document.getElementById('userRegistrationForm').style.display = 'none';
-            
-            // Update global user variables
-            window.userName = username;
-            window.userEmail = email;
-            
-            // Show confirmation message
-            addMsg(`Great! Nice to meet you, ${username}! Now I can help you better. What would you like to know?`, "bot");
-          });
-        }
-
-        // Chips: both groups single-select with tick
-        function toggleChips(containerId, multi = false) {
-          const wrap = document.getElementById(containerId);
-          if (!wrap) return;
-          wrap.addEventListener("click", (e) => {
-            const btn = e.target.closest(".chip");
-            if (!btn || !wrap.contains(btn)) return;
-            if (!multi) {
-              wrap.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", "false"));
-              btn.setAttribute("aria-pressed", "true");
-            } else {
-              const pressed = btn.getAttribute("aria-pressed") === "true";
-              btn.setAttribute("aria-pressed", String(!pressed));
-            }
-          });
-        }
-        toggleChips("topics", false);
-        toggleChips("budget", false);
-
-        // Contact submit
-        const sendContact = document.getElementById("sendContact");
-        if (sendContact) {
-          sendContact.addEventListener("click", () => {
-            const name = (document.getElementById("name").value || "").trim();
-            const email = (document.getElementById("email").value || "").trim();
-            const project = (document.getElementById("project").value || "").trim();
-            const topicBtn = document.querySelector("#topics .chip[aria-pressed='true']");
-            const budgetBtn = document.querySelector("#budget .chip[aria-pressed='true']");
-            const topic = topicBtn ? topicBtn.dataset.value : "";
-            const budget = budgetBtn ? budgetBtn.dataset.value : "";
-
-            if (!name || !email) { alert("Please add your name and email."); return; }
-
-    
-
-            // Confirmation in chat
-            widget.querySelector('.tab[data-page="chat"]').click();
-            addMsg(`Hi! I'm ${name}. ${project ? "About: " + project : ""}`, "user");
-            addTyping();
-            setTimeout(() => { removeTyping(); addMsg("Thanks for reaching out—our team will email you shortly. ✅", "bot"); }, 900);
-          });
-        }
-      };
-
-      if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", run, { once: true });
-      } else {
-        run();
+    // --- 4) Behavior --------------------------------------------------------
+    // Dynamic bot name detection (similar to brandname pattern)
+    let botName = "Botty";
+    const scripts = document.querySelectorAll("script[botname]");
+    scripts.forEach((script) => {
+      const bot = script.getAttribute("botname");
+      if (bot) {
+        botName = bot;
       }
-    })();
+    });
+
+    // API Configuration
+    const API_CONFIG = {
+      baseUrl: "https://anonivate-chatbot-9u9k.onrender.com/chat",
+      websiteUrl: window.location.origin || "",
+    };
+
+    // Generate or retrieve session ID
+    function getOrCreateSessionId() {
+      let sessionId = getCookie("chatbot_sessionId");
+      if (!sessionId) {
+        sessionId =
+          "session_" +
+          Date.now() +
+          "_" +
+          Math.random().toString(36).substr(2, 9);
+        setCookie("chatbot_sessionId", sessionId);
+      } else {
+      }
+      return sessionId;
+    }
+
+    const sessionId = getOrCreateSessionId();
+
+    // Cookie and localStorage management with fallback
+    function setCookie(name, value, days = 365) {
+      try {
+        const expires = new Date();
+        expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+        document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+
+        // Also save to localStorage as backup
+        localStorage.setItem(name, value);
+
+        return true;
+      } catch (error) {
+        localStorage.setItem(name, value);
+        return false;
+      }
+    }
+
+    function getCookie(name) {
+      try {
+        // First try to get from cookies
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(";");
+        for (let i = 0; i < ca.length; i++) {
+          let c = ca[i];
+          while (c.charAt(0) === " ") c = c.substring(1, c.length);
+          if (c.indexOf(nameEQ) === 0) {
+            const value = c.substring(nameEQ.length, c.length);
+
+            return value;
+          }
+        }
+
+        // If not found in cookies, try localStorage
+        const localValue = localStorage.getItem(name);
+        if (localValue) {
+          return localValue;
+        }
+
+        return null;
+      } catch (error) {
+        const localValue = localStorage.getItem(name);
+        if (localValue) {
+          return localValue;
+        }
+        return null;
+      }
+    }
+
+    function saveMessageToStorage(message) {
+      const storageKey = `chatbot_messages_${sessionId}`;
+      const messages = JSON.parse(localStorage.getItem(storageKey) || "[]");
+      messages.push({
+        text: message.text,
+        who: message.who,
+        timestamp: Date.now(),
+        sessionId: sessionId,
+      });
+      localStorage.setItem(storageKey, JSON.stringify(messages));
+    }
+
+    function loadMessagesFromStorage() {
+      const storageKey = `chatbot_messages_${sessionId}`;
+      const messages = JSON.parse(localStorage.getItem(storageKey) || "[]");
+
+      return messages;
+    }
+
+    function clearChatStorage() {
+      const storageKey = `chatbot_messages_${sessionId}`;
+      localStorage.removeItem(storageKey);
+    }
+
+    function getAllSessions() {
+      const sessions = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith("chatbot_messages_")) {
+          const sessionId = key.replace("chatbot_messages_", "");
+          sessions.push(sessionId);
+        }
+      }
+      return sessions;
+    }
+
+    function clearUserData() {
+      // Clear from both cookies and localStorage
+      try {
+        document.cookie =
+          "chatbot_username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        document.cookie =
+          "chatbot_email=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        document.cookie =
+          "chatbot_sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      } catch (error) {}
+      localStorage.removeItem("chatbot_username");
+      localStorage.removeItem("chatbot_email");
+      localStorage.removeItem("chatbot_sessionId");
+    }
+
+    // Get user info from cookies or set defaults
+    const userEmail = getCookie("chatbot_email") || "user@example.com";
+    const userName = getCookie("chatbot_username") || "User";
+
+    // Check cookies on page load and hide form if user data exists
+    function checkUserDataOnLoad() {
+      const username = getCookie("chatbot_username");
+      const email = getCookie("chatbot_email");
+      const hasUserData =
+        username && email && username.trim() !== "" && email.trim() !== "";
+
+      if (hasUserData) {
+        // Ensure form is hidden on page load
+        const form = document.getElementById("userRegistrationForm");
+        if (form) {
+          form.style.display = "none";
+        }
+      }
+    }
+
+    // Elements
+    const openBtn = document.getElementById("openWidget");
+    const widget = document.getElementById("widget");
+    const closeBtn = document.getElementById("closeWidget");
+    const tabs = widget.querySelectorAll(".tab");
+    const pages = {
+      chat: document.getElementById("page-chat"),
+      contact: document.getElementById("page-contact"),
+      book: document.getElementById("page-book"),
+    };
+
+    // Open from floating button → fullscreen
+    openBtn.addEventListener("click", () => {
+      widget.style.display = "flex";
+      document.body.style.overflow = "hidden";
+
+      // Check if this is the first time or if user data exists
+      const username = getCookie("chatbot_username");
+      const email = getCookie("chatbot_email");
+      const hasUserData =
+        username && email && username.trim() !== "" && email.trim() !== "";
+      const hasMessages = widget.querySelector(".chat-area .msg-row");
+
+      if (!hasMessages) {
+        // Load previous messages from localStorage
+        const previousMessages = loadMessagesFromStorage();
+        if (previousMessages.length > 0) {
+          // Restore previous conversation
+
+          previousMessages.forEach((msg) => {
+            addMsg(msg.text, msg.who, false); // Don't save again to avoid duplicates
+          });
+        } else {
+          // First time - show welcome message
+
+          setTimeout(
+            () =>
+              addMsg(
+                `Hi there! My name is ${botName} 👋. How can I help today?`,
+                "bot",
+              ),
+            200,
+          );
+        }
+
+        // Show registration form if no user data exists
+        if (!hasUserData) {
+          setTimeout(() => {
+            document.getElementById("userRegistrationForm").style.display =
+              "block";
+          }, 1000);
+        } else {
+          // Ensure form is hidden
+          document.getElementById("userRegistrationForm").style.display =
+            "none";
+        }
+      } else {
+        // Ensure form is hidden if messages already exist
+        document.getElementById("userRegistrationForm").style.display = "none";
+      }
+    });
+
+    // Close (button + ESC)
+    const closeFullscreen = () => {
+      widget.style.display = "none";
+      document.body.style.overflow = "";
+    };
+    closeBtn.addEventListener("click", closeFullscreen);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeFullscreen();
+    });
+
+    // Tabs
+    tabs.forEach((t) => {
+      t.addEventListener("click", () => {
+        const page = t.dataset.page;
+        if (!page) return;
+        tabs.forEach((x) => x.setAttribute("aria-selected", String(x === t)));
+        Object.values(pages).forEach((p) => p.classList.remove("active"));
+        pages[page].classList.add("active");
+      });
+    });
+
+    // Chat mechanics
+    const messages = document.getElementById("messages");
+    const input = document.getElementById("input");
+    const send = document.getElementById("send");
+
+    function addMsg(text, who = "user", saveToStorage = true) {
+      const row = document.createElement("div");
+      row.className = "msg-row " + (who === "user" ? "user" : "bot");
+
+      if (who === "bot") {
+        // Bot bubble (avatar on the left, name above bubble) – unchanged
+        const av = document.createElement("div");
+        av.className = "avatar";
+        row.appendChild(av);
+        const col = document.createElement("div");
+        const name = document.createElement("div");
+        name.className = "who";
+        name.textContent = botName;
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.innerHTML = text;
+        col.appendChild(name);
+        col.appendChild(bubble);
+        row.appendChild(col);
+      } else {
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.textContent = text;
+        row.appendChild(bubble);
+      }
+
+      messages.appendChild(row);
+      messages.scrollTop = messages.scrollHeight;
+
+      // Save message to localStorage
+      if (saveToStorage) {
+        saveMessageToStorage({ text, who });
+      }
+    }
+
+    // Typing indicator: avatar + who inside the SAME div (meta), as requested
+    function addTyping() {
+      const row = document.createElement("div");
+      row.className = "msg-row bot";
+      row.id = "typing";
+
+      const col = document.createElement("div");
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      const av = document.createElement("div");
+      av.className = "avatar";
+      const name = document.createElement("div");
+      name.className = "who";
+      name.textContent = botName;
+      meta.appendChild(av);
+      meta.appendChild(name);
+
+      const tile = document.createElement("div");
+      tile.className = "typing";
+      tile.innerHTML = '<span class="dots"><i></i><i></i><i></i></span>';
+
+      col.appendChild(meta);
+      col.appendChild(tile);
+
+      row.appendChild(col);
+      messages.appendChild(row);
+      messages.scrollTop = messages.scrollHeight;
+    }
+    function removeTyping() {
+      const t = document.getElementById("typing");
+      if (t) t.remove();
+    }
+
+    // API call function
+    async function callChatAPI(message) {
+      try {
+        // Get current user data from cookies
+        const currentUserEmail = getCookie("chatbot_email") || userEmail;
+        const currentUserName = getCookie("chatbot_username") || userName;
+
+        const requestBody = {
+          assistant_name: botName,
+          message: message,
+          session_id: sessionId,
+          user_email: currentUserEmail,
+          user_name: currentUserName,
+        };
+
+        const url = `${API_CONFIG.baseUrl}?website_url=${encodeURIComponent(API_CONFIG.websiteUrl)}`;
+
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error("API call failed:", error);
+        throw error;
+      }
+    }
+
+    function handleSend() {
+      const text = (input.value || "").trim();
+      if (!text) return;
+
+      // Add user message
+      addMsg(text, "user");
+      input.value = "";
+
+      // Reset textarea height
+      autoResizeTextarea(input);
+
+      // Show typing indicator
+      addTyping();
+
+      // Call API
+      callChatAPI(text)
+        .then((response) => {
+          removeTyping();
+          // Assuming the API returns a response with a message field
+          const botResponse =
+            response.message ||
+            response.response ||
+            response.text ||
+            "I'm sorry, I couldn't process your request.";
+          addMsg(botResponse, "bot");
+        })
+        .catch((error) => {
+          removeTyping();
+          console.error("Error:", error);
+          addMsg(
+            "Sorry, I'm having trouble connecting right now. Please try again later.",
+            "bot",
+          );
+        });
+    }
+    // Auto-resize textarea function
+    function autoResizeTextarea(textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = Math.min(textarea.scrollHeight, 120) + "px";
+    }
+
+    // Add auto-resize functionality to the input textarea
+    input.addEventListener("input", () => {
+      autoResizeTextarea(input);
+    });
+
+    send.addEventListener("click", handleSend);
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+      }
+      // Shift+Enter allows for new lines in the input field
+    });
+
+    // Clear Memory functionality
+    const clearMemoryBtn = document.getElementById("clearMemory");
+    if (clearMemoryBtn) {
+      clearMemoryBtn.addEventListener("click", () => {
+        // Confirm before clearing
+        if (
+          confirm(
+            "Are you sure you want to clear the chat memory? This will remove all previous messages.",
+          )
+        ) {
+          // Clear the messages display
+          const messagesContainer = document.getElementById("messages");
+          if (messagesContainer) {
+            messagesContainer.innerHTML = "";
+          }
+
+          // Clear localStorage for current session
+          clearChatStorage();
+
+          // Show a fresh welcome message
+          setTimeout(() => {
+            addMsg(
+              `Hi there! My name is ${botName} 👋. How can I help today?`,
+              "bot",
+              false,
+            );
+          }, 100);
+        }
+      });
+    }
+
+    // User registration form handling
+    const saveUserInfo = document.getElementById("saveUserInfo");
+    if (saveUserInfo) {
+      saveUserInfo.addEventListener("click", () => {
+        const username = document.getElementById("regUsername").value.trim();
+        const email = document.getElementById("regEmail").value.trim();
+
+        if (!username || !email) {
+          alert("Please fill in both name and email fields.");
+          return;
+        }
+
+        // Save to cookies (with localStorage fallback)
+        const usernameSaved = setCookie("chatbot_username", username);
+        const emailSaved = setCookie("chatbot_email", email);
+
+        // Verify data was saved
+        setTimeout(() => {
+          const savedUsername = getCookie("chatbot_username");
+          const savedEmail = getCookie("chatbot_email");
+
+          if (savedUsername === username && savedEmail === email) {
+          } else {
+          }
+        }, 100);
+
+        // Hide registration form
+        document.getElementById("userRegistrationForm").style.display = "none";
+
+        // Update global user variables
+        window.userName = username;
+        window.userEmail = email;
+
+        // Show confirmation message
+        addMsg(
+          `Great! Nice to meet you, ${username}! Now I can help you better. What would you like to know?`,
+          "bot",
+        );
+      });
+    }
+
+    // Chips: both groups single-select with tick
+    function toggleChips(containerId, multi = false) {
+      const wrap = document.getElementById(containerId);
+      if (!wrap) return;
+      wrap.addEventListener("click", (e) => {
+        const btn = e.target.closest(".chip");
+        if (!btn || !wrap.contains(btn)) return;
+        if (!multi) {
+          wrap
+            .querySelectorAll(".chip")
+            .forEach((c) => c.setAttribute("aria-pressed", "false"));
+          btn.setAttribute("aria-pressed", "true");
+        } else {
+          const pressed = btn.getAttribute("aria-pressed") === "true";
+          btn.setAttribute("aria-pressed", String(!pressed));
+        }
+      });
+    }
+    toggleChips("topics", false);
+    toggleChips("budget", false);
+
+    // Contact submit
+    const sendContact = document.getElementById("sendContact");
+    if (sendContact) {
+      sendContact.addEventListener("click", () => {
+        const name = (document.getElementById("name").value || "").trim();
+        const email = (document.getElementById("email").value || "").trim();
+        const project = (document.getElementById("project").value || "").trim();
+        const topicBtn = document.querySelector(
+          "#topics .chip[aria-pressed='true']",
+        );
+        const budgetBtn = document.querySelector(
+          "#budget .chip[aria-pressed='true']",
+        );
+        const topic = topicBtn ? topicBtn.dataset.value : "";
+        const budget = budgetBtn ? budgetBtn.dataset.value : "";
+
+        if (!name || !email) {
+          alert("Please add your name and email.");
+          return;
+        }
+
+        // Confirmation in chat
+        widget.querySelector('.tab[data-page="chat"]').click();
+        addMsg(
+          `Hi! I'm ${name}. ${project ? "About: " + project : ""}`,
+          "user",
+        );
+        addTyping();
+        setTimeout(() => {
+          removeTyping();
+          addMsg(
+            "Thanks for reaching out—our team will email you shortly. ✅",
+            "bot",
+          );
+        }, 900);
+      });
+    }
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run, { once: true });
+  } else {
+    run();
+  }
+})();
