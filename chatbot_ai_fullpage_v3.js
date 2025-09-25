@@ -7,6 +7,7 @@
   };
 
   const run = () => {
+    console.log("[Init] Chatbot script loaded");
     // --- 1) Fonts -----------------------------------------------------------
     const pre1 = document.createElement("link");
     pre1.rel = "preconnect";
@@ -222,6 +223,7 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
     once("bdw-style", style);
 
     // --- 3) DOM: Launcher + Widget -----------------------------------------
+    console.log("[DOM] Creating launcher and widget HTML");
     const wrap = document.createElement("div");
     wrap.id = "bdw-root";
     wrap.style.all = "unset"; // isolate inheritable glitches a bit
@@ -424,6 +426,7 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
     });
 
     // API Configuration
+    console.log("[Config] API base URL:", API_CONFIG.baseUrl);
     const API_CONFIG = {
       baseUrl: "https://anonivate-chatbot-9u9k.onrender.com/chat",
       websiteUrl: window.location.origin || "",
@@ -654,6 +657,7 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
     const send = document.getElementById("send");
 
     function addMsg(text, who = "user", saveToStorage = true) {
+      console.log(`[Chat] Adding message: ${text} (who: ${who})`);
       const row = document.createElement("div");
       row.className = "msg-row " + (who === "user" ? "user" : "bot");
 
@@ -724,6 +728,7 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
 
     // API call function
     async function callChatAPI(message) {
+      console.log("[API] Calling chat API with message:", message);
       try {
         // Get current user data from cookies
         const currentUserEmail = getCookie("chatbot_email") || userEmail;
@@ -761,6 +766,7 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
 
     function handleSend() {
       const text = (input.value || "").trim();
+      console.log("[Input] User pressed send with text:", text);
       if (!text) return;
 
       // Add user message
@@ -911,6 +917,7 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
     const sendContact = document.getElementById("sendContact");
     if (sendContact) {
       sendContact.addEventListener("click", () => {
+        console.log("[Contact] Send contact form clicked");
         const name = (document.getElementById("name").value || "").trim();
         const email = (document.getElementById("email").value || "").trim();
         const project = (document.getElementById("project").value || "").trim();
