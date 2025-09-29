@@ -1056,4 +1056,5 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
       } else {
         run();
       }
+  console.log("v3 version");
     })();
