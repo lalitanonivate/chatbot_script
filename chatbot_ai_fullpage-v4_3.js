@@ -485,6 +485,9 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
           userName: null
         };
         
+        // Flag to track if registration form was used
+        let registrationFormUsed = false;
+        
         // Cookie and localStorage management with fallback
         function setCookie(name, value, days = 365) {
           try {
@@ -818,13 +821,16 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
             conversationState.waitingForName = false;
             conversationState.waitingForQuery = true;
             
-            // Show typing indicator
-            addTyping();
-            
-            setTimeout(() => {
-              removeTyping();
-              addMsg(`Nice to meet you, ${text}. What are you curious about today?`, "bot");
-            }, 1000);
+            // Check if registration form was used to avoid duplicate welcome message
+            if (!registrationFormUsed) {
+              // Show typing indicator
+              addTyping();
+              
+              setTimeout(() => {
+                removeTyping();
+                addMsg(`Nice to meet you, ${text}. What are you curious about today?`, "bot");
+              }, 1000);
+            }
             
           } else if (conversationState.waitingForQuery) {
             // User provided their query or browsing response
@@ -1085,8 +1091,14 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
             window.userName = username;
             window.userEmail = email;
             
-            // Show confirmation message
-            addMsg(`Nice to meet you, ${username}. What are you curious about today?`, "bot");
+            // Set flag to prevent duplicate welcome message from chat flow
+            registrationFormUsed = true;
+            
+            // Only show welcome message if chat flow wasn't used first
+            if (!conversationState.userName) {
+              // Show confirmation message
+              addMsg(`Nice to meet you, ${username}. What are you curious about today?`, "bot");
+            }
           });
         }
 
