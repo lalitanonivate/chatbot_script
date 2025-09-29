@@ -1086,7 +1086,7 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
             window.userEmail = email;
             
             // Show confirmation message
-            addMsg(`Nice to meet you, ${text}. What are you curious about today?`, "bot");
+            addMsg(`Nice to meet you, ${username}. What are you curious about today?`, "bot");
           });
         }
 
