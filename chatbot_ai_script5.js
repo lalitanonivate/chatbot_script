@@ -445,5 +445,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (hadHistory) {
     openChat(/*forceOpen*/true);
   }
+   console.log("hello how are you?");
 });
 
