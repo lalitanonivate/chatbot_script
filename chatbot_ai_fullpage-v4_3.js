@@ -1,4 +1,5 @@
  (() => {
+    console.log('chatbot_ai_fullpage-v4_3.js loaded');
       // --- 0) Helpers -----------------------------------------------------------
       const once = (id, node) => {
         if (document.getElementById(id)) return;
@@ -7,6 +8,7 @@
       };
 
       const run = () => {
+        console.log('run() function called');
         // --- 1) Fonts -----------------------------------------------------------
         const pre1 = document.createElement("link");
         pre1.rel = "preconnect"; pre1.href = "https://fonts.googleapis.com";
