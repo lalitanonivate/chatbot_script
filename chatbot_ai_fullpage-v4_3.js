@@ -1,5 +1,4 @@
  (() => {
-    console.log('chatbot_ai_fullpage-v4_3.js loaded');
       // --- 0) Helpers -----------------------------------------------------------
       const once = (id, node) => {
         if (document.getElementById(id)) return;
@@ -8,7 +7,6 @@
       };
 
       const run = () => {
-        console.log('run() function called');
         // --- 1) Fonts -----------------------------------------------------------
         const pre1 = document.createElement("link");
         pre1.rel = "preconnect"; pre1.href = "https://fonts.googleapis.com";
@@ -408,21 +406,15 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
           checkUserData: () => {
             const username = getCookie('chatbot_username');
             const email = getCookie('chatbot_email');
-            console.log('Current user data:');
-            console.log('Username:', username);
-            console.log('Email:', email);
-            console.log('Has user data:', username && email);
             return { username, email };
           },
           getSessionId: () => {
-            console.log('Current session ID:', sessionId);
             return sessionId;
           },
           getAllSessions: getAllSessions,
           createNewSession: () => {
             const newSessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             setCookie('chatbot_sessionId', newSessionId);
-            console.log('Created new session ID:', newSessionId);
             return newSessionId;
           },
           clearSessionId: () => {
@@ -432,10 +424,8 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
               console.log('Cookie clear failed');
             }
             localStorage.removeItem('chatbot_sessionId');
-            console.log('Session ID cleared');
           },
           getConversationState: () => {
-            console.log('Current conversation state:', conversationState);
             return conversationState;
           },
           resetConversationState: () => {
@@ -444,7 +434,6 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
               waitingForQuery: false,
               userName: null
             };
-            console.log('Conversation state reset:', conversationState);
           }
         };
 
@@ -471,9 +460,6 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
           if (!sessionId) {
             sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             setCookie('chatbot_sessionId', sessionId);
-            console.log('Created new session ID:', sessionId);
-          } else {
-            console.log('Retrieved existing session ID:', sessionId);
           }
           return sessionId;
         }
@@ -496,11 +482,9 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
             const expires = new Date();
             expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
             document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
-            console.log(`Cookie set: ${name}=${value}`);
             
             // Also save to localStorage as backup
             localStorage.setItem(name, value);
-            console.log(`Also saved to localStorage: ${name}=${value}`);
             
             return true;
           } catch (error) {
@@ -520,7 +504,6 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
               while (c.charAt(0) === ' ') c = c.substring(1, c.length);
               if (c.indexOf(nameEQ) === 0) {
                 const value = c.substring(nameEQ.length, c.length);
-                console.log(`Cookie found: ${name}=${value}`);
                 return value;
               }
             }
@@ -528,17 +511,14 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
             // If not found in cookies, try localStorage
             const localValue = localStorage.getItem(name);
             if (localValue) {
-              console.log(`Found in localStorage: ${name}=${localValue}`);
               return localValue;
             }
             
-            console.log(`Not found in cookies or localStorage: ${name}`);
             return null;
           } catch (error) {
             console.log(`Cookie read failed, trying localStorage: ${name}`);
             const localValue = localStorage.getItem(name);
             if (localValue) {
-              console.log(`Found in localStorage: ${name}=${localValue}`);
               return localValue;
             }
             return null;
@@ -555,20 +535,17 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
             sessionId: sessionId
           });
           localStorage.setItem(storageKey, JSON.stringify(messages));
-          console.log(`Message saved for session: ${sessionId}`);
         }
         
         function loadMessagesFromStorage() {
           const storageKey = `chatbot_messages_${sessionId}`;
           const messages = JSON.parse(localStorage.getItem(storageKey) || '[]');
-          console.log(`Loaded ${messages.length} messages for session: ${sessionId}`);
           return messages;
         }
         
         function clearChatStorage() {
           const storageKey = `chatbot_messages_${sessionId}`;
           localStorage.removeItem(storageKey);
-          console.log(`Cleared messages for session: ${sessionId}`);
         }
         
         function getAllSessions() {
@@ -595,7 +572,6 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
           localStorage.removeItem('chatbot_username');
           localStorage.removeItem('chatbot_email');
           localStorage.removeItem('chatbot_sessionId');
-          console.log('User data and session cleared');
         }
         
         // Get user info from cookies or set defaults
@@ -608,17 +584,11 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
           const email = getCookie('chatbot_email');
           const hasUserData = username && email && username.trim() !== '' && email.trim() !== '';
           
-          console.log('Page load - checking user data...');
-          console.log('Username cookie:', username);
-          console.log('Email cookie:', email);
-          console.log('Has user data:', hasUserData);
-          
           if (hasUserData) {
             // Ensure form is hidden on page load
             const form = document.getElementById('userRegistrationForm');
             if (form) {
               form.style.display = 'none';
-              console.log('Form hidden on page load - user data exists');
             }
           }
         }
@@ -645,41 +615,30 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
           const hasUserData = username && email && username.trim() !== '' && email.trim() !== '';
           const hasMessages = widget.querySelector(".chat-area .msg-row");
           
-          console.log('Opening chat widget...');
-          console.log('Username cookie:', username);
-          console.log('Email cookie:', email);
-          console.log('Has user data:', hasUserData);
-          console.log('Has messages:', hasMessages);
-          
           if (!hasMessages) {
             // Load previous messages from localStorage
             const previousMessages = loadMessagesFromStorage();
             if (previousMessages.length > 0) {
               // Restore previous conversation
-              console.log('Restoring previous messages:', previousMessages.length);
               previousMessages.forEach(msg => {
                 addMsg(msg.text, msg.who, false); // Don't save again to avoid duplicates
               });
             } else {
               // First time - show new welcome message
-              console.log('First time user - showing welcome message');
               conversationState.waitingForName = true;
               setTimeout(() => addMsg(`Hey, nice to meet you. What's your name?`, "bot"), 200);
             }
             
             // Show registration form if no user data exists
             if (!hasUserData) {
-              console.log('No user data found - showing registration form');
               setTimeout(() => {
                 document.getElementById('userRegistrationForm').style.display = 'block';
               }, 1000);
             } else {
-              console.log('User data exists - skipping registration form');
               // Ensure form is hidden
               document.getElementById('userRegistrationForm').style.display = 'none';
             }
           } else {
-            console.log('Messages already exist - not showing form');
             // Ensure form is hidden if messages already exist
             document.getElementById('userRegistrationForm').style.display = 'none';
           }
@@ -780,9 +739,6 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
               user_name: currentUserName
             };
             
-            console.log('API call with sessionId:', sessionId);
-            console.log('Request body:', requestBody);
-
             const url = `${API_CONFIG.baseUrl}?website_url=${encodeURIComponent(API_CONFIG.websiteUrl)}`;
             
             const response = await fetch(url, {
@@ -939,7 +895,6 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
                 addMsg(`Hey, nice to meet you. What's your name?`, "bot", false);
               }, 100);
               
-              console.log("Chat memory cleared successfully");
             }
           });
         }
@@ -959,14 +914,12 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
             recognition.lang = 'en-US';
             
             recognition.onstart = function() {
-              console.log('Speech recognition started');
               isRecording = true;
               updateVoiceButtonState(true);
             };
             
             recognition.onresult = function(event) {
               const transcript = event.results[0][0].transcript;
-              console.log('Speech recognized:', transcript);
               
               // Add the transcript to the input field
               const input = document.getElementById("input");
@@ -975,7 +928,6 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
             };
             
             recognition.onerror = function(event) {
-              console.error('Speech recognition error:', event.error);
               isRecording = false;
               updateVoiceButtonState(false);
               
@@ -1000,7 +952,6 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
             };
             
             recognition.onend = function() {
-              console.log('Speech recognition ended');
               isRecording = false;
               updateVoiceButtonState(false);
             };
@@ -1055,10 +1006,6 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
             const username = document.getElementById("regUsername").value.trim();
             const email = document.getElementById("regEmail").value.trim();
             
-            console.log('Save button clicked');
-            console.log('Username:', username);
-            console.log('Email:', email);
-
             
             if (!username || !email) {
               alert("Please fill in both name and email fields.");
@@ -1069,20 +1016,13 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
             const usernameSaved = setCookie('chatbot_username', username);
             const emailSaved = setCookie('chatbot_email', email);
             
-            console.log('Username saved successfully:', usernameSaved);
-            console.log('Email saved successfully:', emailSaved);
-            
             // Verify data was saved
             setTimeout(() => {
               const savedUsername = getCookie('chatbot_username');
               const savedEmail = getCookie('chatbot_email');
-              console.log('Verification - Saved username:', savedUsername);
-              console.log('Verification - Saved email:', savedEmail);
               
               if (savedUsername === username && savedEmail === email) {
-                console.log('✅ User data saved and verified successfully!');
               } else {
-                console.log('❌ User data verification failed!');
               }
             }, 100);
             
@@ -1154,5 +1094,4 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
         run();
       }
 
-  console.log("v4.3 version");
     })();
