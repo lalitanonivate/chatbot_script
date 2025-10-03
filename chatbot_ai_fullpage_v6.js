@@ -1,0 +1,839 @@
+ (() => {
+      // --- 0) Helpers -----------------------------------------------------------
+      const once = (id, node) => {
+        if (document.getElementById(id)) return;
+        node.id = id;
+        document.head.appendChild(node);
+      };
+
+      const run = () => {
+        // --- 1) Fonts -----------------------------------------------------------
+        const pre1 = document.createElement("link");
+        pre1.rel = "preconnect"; pre1.href = "https://fonts.googleapis.com";
+        const pre2 = document.createElement("link");
+        pre2.rel = "preconnect"; pre2.href = "https://fonts.gstatic.com"; pre2.crossOrigin = "anonymous";
+        const gfont1 = document.createElement("link");
+        gfont1.rel = "stylesheet";
+        gfont1.href = "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap";
+        const gfont2 = document.createElement("link");
+        gfont2.rel = "stylesheet";
+        gfont2.href = "https://fonts.googleapis.com/css2?family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap";
+        once("bdw-pre-gfonts-1", pre1);
+        once("bdw-pre-gfonts-2", pre2);
+        once("bdw-font-poppins", gfont1);
+        once("bdw-font-inclusive", gfont2);
+
+        // --- 2) Styles ----------------------------------------------------------
+        const css = `
+:root {
+  --font: "Inclusive Sans", sans-serif;
+  --bg-canvas: #F7F4F2;
+  --panel: #F7F4F2;
+  --ink: #161513;
+  --muted: #6E6A65;
+  --line: rgba(43, 43, 43, 0.15);
+  --bot: #C7E5E0;
+  --user: #CDE8C6;
+  --typing: #BFE5DE;
+  --send: #1E1E1E;
+  --send-ink: #fff;
+  --chip: #F6F5F3;
+  --chip-on: #111;
+  --chip-on-bg: #EDECEA;
+  --brand-logo: url('./img/logo.png');
+}
+html, body { height: 100% }
+body { margin: 0; font-family: var(--font); color: var(--ink) }
+
+/* Floating launcher */
+#openWidget.launcher{
+  position: fixed; right: 20px; bottom: 20px; cursor: pointer; z-index: 999999999;
+  display: flex; flex-direction: row; min-height: 56px; padding: 16px;
+  justify-content: center; align-items: center; gap: 8px; transition: transform .15s ease;
+  background: #F7F4F2; border: 1px solid rgba(43, 43, 43, 0.15); color: #2B2B2B;
+  font-size: 18px; font-weight: 500; line-height: 130%;
+}
+#openWidget.launcher:hover { transform: scale(1.05) }
+
+/* FULLSCREEN widget */
+#widget.widget{
+  position: fixed; inset: 0; width: 100vw; height: 100vh; background: var(--panel);
+  border-radius: 0; box-shadow: none; border: none; display: none; flex-direction: column;
+  overflow: hidden; z-index: 9999999999;
+}
+
+/* Top bar */
+#widget .topbar{
+  display: flex; align-items: center; justify-content: space-between; gap: 18px;
+  padding: 10px 14px 0; border-bottom: 1px solid var(--line); background: #F7F4F2; flex: 0 0 auto;
+}
+#widget .logo{ width: 105px; height: 50px; flex: 0 0 auto; margin-bottom: 10px; }
+#widget .tabs{ display: flex; gap: 10px; align-items: center; overflow: auto; }
+#widget .tab{
+  display: flex; flex-direction: row; gap: 8px; align-items: center; font-family: "Inclusive Sans", sans-serif;
+  appearance: none; border: 0; background: transparent; padding: 16px; border-radius: 0; color: #2B2B2B;
+  font-size: 18px; font-weight: 500; line-height: 130%; cursor: pointer; white-space: nowrap;
+}
+#widget .tab[aria-selected="true"]{ border-bottom: 1px solid #2B2B2B; }
+#widget .close{
+  display: flex; min-height: 56px; padding: 16px; justify-content: center; align-items: center;
+  border: none; background-color: #2B2B2B; cursor: pointer; border-radius: 0;
+}
+
+/* Pages */
+#widget .page{ display: none; min-height: 0; }
+#widget .page.active{ display: flex; flex-direction: column; flex: 1 1 auto; max-width: 868px; margin: 0 auto; width: 100%; }
+
+/* Chat page */
+#widget .chat-header{ padding: 35px 20px 8px; font-weight: 700; font-size: 32px; background: #F7F4F2; }
+#widget .chat-area{ padding: 6px 16px 14px; overflow: auto; flex: 1; background: var(--bg-canvas); }
+#widget .msg-row{ display: flex; align-items: flex-start; gap: 10px; margin: 12px 0; }
+#widget .avatar{
+  width: 70px; height: 70px; border-radius: 50%; background: url(https://cdn.prod.website-files.com/68beb349c6de55fecbd68bcc/68cd45fb639a53efc71bdee1_avatar_q.png) center/cover no-repeat;
+  border: 1px solid var(--line); flex: 0 0 auto;
+}
+#widget .who{ font-size: 22px; color: #2B2B2B; margin: 0 0 4px 0; font-weight: 500; }
+#widget .bubble{ padding: 24px; border-radius: 12px; font-size: 22px; line-height: 1.45; max-width: 100%; }
+#widget .bot .bubble{ background: var(--bot); color: #0f3732; }
+#widget .user{ justify-content: flex-end; }
+#widget .user .bubble{ background: #B6D6A5; color: #000000; }
+#widget .user .avatar{ display: none; }
+
+/* For typing layout: avatar + who in SAME row */
+#widget .meta{ display: inline-flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+#widget .msg-row.bot{ align-items: flex-start; }
+
+/* Typing tile */
+#widget .typing{
+  width: 48px; height: 30px; border-radius: 8px; background: var(--typing);
+  display: grid; place-items: center; box-shadow: 0 1px 2px rgba(0,0,0,.05);
+}
+#widget .dots{ display: inline-flex; gap: 4px; }
+#widget .dots i{ width: 5px; height: 5px; border-radius: 50%; background: #2a6b61; opacity: .5; animation: b 1.2s infinite; display: block; }
+#widget .dots i:nth-child(2){ animation-delay: .15s }
+#widget .dots i:nth-child(3){ animation-delay: .3s }
+@keyframes b{ 0%,80%,100%{ transform: translateY(0); opacity: .45 } 40%{ transform: translateY(-3px); opacity: .9 } }
+
+/* Composer */
+#widget .composer{
+  display: flex; gap: 10px; align-items: center; border: 1px solid rgba(43, 43, 43, 0.15); background: #F7F4F2;
+  padding: 20px; border-radius: 16px; border-bottom-right-radius: 0; margin-bottom: 30px;
+}
+#widget .input{
+  font-family: "Inclusive Sans", sans-serif; flex: 1; border: none; background: #F7F4F2; border-radius: 10px;
+  padding: 12px 12px; outline: none; font-size: 22px; color: rgba(43,43,43,0.50);
+  resize: none; min-height: 24px; max-height: 120px; overflow-y: auto;
+}
+#widget .send{ padding: 16px 24px; border: 1px solid #2B2B2B; background: #2B2B2B; color: var(--send-ink); display: grid; place-items: center; cursor: pointer; }
+#widget .send svg{ width: 18px; height: 18px; fill: #fff }
+
+/* Contact page */
+#widget .contact-wrap{ padding: 18px 16px; overflow: auto; background: var(--bg-canvas); flex: 1; }
+#widget .h1{ font-weight: 700; font-size: 32px; text-align: center; margin: 0; }
+#widget .sub{ text-align: center; color: #000000; font-size: 20px; margin-bottom: 50px; }
+#widget .field{ margin: 0 0 24px }
+#widget .field label{ display: block; font-size: 16px; color: #2B2B2B; line-height: 130%}
+#widget .field.inline {display: flex; flex-direction: row; align-items: center; gap: 12px}
+#widget .field.inline input {flex: 1 1 0;}
+#widget .field input, #widget .field textarea{
+  width: 100%; outline: none; box-sizing: border-box; border: none; border-radius: 0px; padding: 12px 20px; background: #E3E0DE; font: 400 16px/1.2 var(--font);
+}
+
+/* Chips (single-select with CSS checkmark) */
+#widget .chips{ display: flex; gap: 10px; flex-wrap: wrap; }
+#widget .chip{
+  border: 1px solid rgba(43, 43, 43, 0.15); background: #F7F4F2; padding: 12px 20px; font: 600 18px/1 var(--font);
+  border-radius: 0px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+  position: relative; padding-left: 36px; color: #2B2B2B
+}
+#widget .chip svg{ display: none !important; }
+#widget .chip::before{
+  content: ""; position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  width: 16px; height: 16px; border: 1px solid var(--line); border-radius: 4px; background: #fff; opacity: 0; transition: all .15s ease;
+}
+#widget .chip::after{
+  content: ""; position: absolute; left: 14px; top: 50%;
+  width: 12px; height: 6px; border: 2px solid #2B2B2B; border-top: 0; border-right: 0; transform: translateY(-55%) rotate(-45deg);
+  opacity: 0; transition: opacity .15s ease;
+}
+#widget .chip[aria-pressed="true"]{ background: rgba(43, 43, 43, 0.15); }
+#widget .chip[aria-pressed="true"]::after{ opacity: 1; color: #2B2B2B }
+
+#widget .cta{
+  width: 100%; border: none; background: #111; color: #fff; padding: 12px 20px; border-radius: 0px;
+  font: 600 16px/1 var(--font); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+
+
+#widget .escape-close{
+  display: flex; justify-content: center; align-items: center; gap: 16px; color: #2B2B2B; font-weight: 800; line-height: 130%;
+  letter-spacing: 1.82px; text-transform: uppercase; margin-bottom: 10px;
+}
+
+/* User Registration Form */
+#widget .user-registration-form{
+  padding: 20px; background: var(--bg-canvas); border-top: 1px solid var(--line);
+}
+#widget .registration-content h3{
+  margin: 0 0 20px 0; font-size: 24px; font-weight: 600; color: #2B2B2B; text-align: center;
+}
+#widget .registration-content .field{
+  margin-bottom: 16px;
+}
+#widget .registration-content .field label{
+  display: block; margin-bottom: 8px; font-size: 16px; color: #2B2B2B; font-weight: 500;
+}
+#widget .registration-content .field input{
+  width: 100%; padding: 12px 16px; border: 1px solid var(--line); border-radius: 8px;
+  font-size: 16px; background: #fff; outline: none; box-sizing: border-box;
+}
+#widget .registration-content .field input:focus{
+  border-color: #2B2B2B;
+}
+#widget .registration-content .cta{
+  width: 100%; margin-top: 8px;
+}
+
+@media (max-width:640px){ #widget .composer{ position: sticky; bottom: 0 } }
+`;
+        const style = document.createElement("style");
+        style.textContent = css;
+        once("bdw-style", style);
+
+        // --- 3) DOM: Launcher + Widget -----------------------------------------
+        const wrap = document.createElement("div");
+        wrap.id = "bdw-root";
+        wrap.style.all = "unset"; // isolate inheritable glitches a bit
+        wrap.style.setProperty('--font', '"Inclusive Sans", sans-serif');
+
+        const launcherHTML = `
+<button class="launcher" id="openWidget" aria-label="Open chat">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none">
+    <path d="M4.69 11.78 7.47 11.316c1.475-.246 2.631-1.402 2.877-2.877l.464-2.784h1.75l.464 2.784c.246 1.475 1.402 2.631 2.877 2.877L18.69 11.78v1.75l-2.784.464a3.5 3.5 0 0 0-2.877 2.877l-.464 2.784h-1.75l-.464-2.784a3.5 3.5 0 0 0-2.877-2.877L4.69 13.53v-1.75Z" fill="#2B2B2B" />
+    <path d="M18.85 4.452c.125.88.817 1.572 1.697 1.698L21 6.214v.571l-.453.066c-.88.125-1.571.817-1.697 1.697L18.786 9h-.572l-.064-.452c-.126-.88-.818-1.571-1.698-1.697L16 6.786v-.572l.452-.064c.88-.126 1.572-.818 1.698-1.698L18.786 4h.571l-.507.452Z" fill="#2B2B2B" />
+  </svg>
+  <span>Ask us anything</span>
+</button>`;
+
+        const widgetHTML = `
+<section class="widget" id="widget" role="dialog" aria-modal="true" aria-label="Chat and contact">
+  <div class="topbar">
+    <div class="logo" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="105" height="51" viewBox="0 0 105 51" fill="none">
+  <path d="M8.8578 50C2.8971 50 0 46.2371 0 41.2421C0 36.2471 2.8971 32.6 8.8578 32.6H11.3542L11.4874 32.4668V26.8332L11.6206 26.7H17.0152L17.1484 26.8332V49.8668L17.0152 50H8.8578ZM8.8578 44.4056C10.4562 44.4056 11.8548 43.2734 11.8548 41.2754C11.8548 39.2774 10.4562 38.1452 8.8578 38.1452C7.2594 38.1452 5.8608 39.2774 5.8608 41.2754C5.8608 43.2734 7.2594 44.4056 8.8578 44.4056Z" fill="#2B2B2B"></path>
+  <path d="M27.0184 50.4995C21.8236 50.4995 18.5602 46.67 18.5602 41.2754C18.5602 35.8808 21.6238 32.0513 26.8186 32.0513C31.3474 32.0513 34.8106 34.8152 34.8106 40.5095V42.9071L34.6774 43.0403H25.7863C25.0537 43.0403 24.5875 43.4399 24.5875 44.1725C24.5875 45.1382 25.3867 45.9041 26.8852 45.9041C28.0174 45.9041 28.6834 45.4712 28.8166 44.8385L28.9498 44.7053H34.3444L34.4776 44.8385C34.1113 48.335 30.9811 50.4995 27.0184 50.4995ZM27.9175 39.7769C28.6501 39.7769 29.0497 39.3107 29.0497 38.5781C29.0497 37.5125 28.1506 36.7133 26.8519 36.7133C25.5532 36.7133 24.6541 37.5125 24.6541 38.5781C24.6541 39.3107 25.0537 39.7769 25.7863 39.7769H27.9175Z" fill="#2B2B2B"></path>
+  <path d="M38.3323 50L38.1991 49.8668V39.011C38.1991 37.9454 37.5997 37.346 36.5341 37.346H35.2021L35.0689 37.2128V32.7332L35.2021 32.6H38.0659L38.1991 32.4668L38.2018 26.8332L38.335 26.7H47.3593L47.4925 26.8332L47.4898 30.4862L47.3566 30.6194H45.5251C44.3929 30.6194 43.8601 31.2014 43.8601 32.3336V32.4668L43.9933 32.6H47.3566L47.4898 32.7332V37.2128L47.3566 37.346H45.5251C44.4595 37.346 43.8601 37.9454 43.8601 39.011V49.8668L43.7269 50H38.3323Z" fill="#2B2B2B"></path>
+  <path d="M56.2413 50C50.2806 50 47.3835 46.3196 47.3835 41.3246C47.3835 36.3296 50.2806 32.6 56.2413 32.6H64.7661L64.8993 32.7332V49.8668L64.7661 50H56.2413ZM56.2413 44.4056C57.8397 44.4056 59.2383 43.2734 59.2383 41.2754C59.2383 39.2774 57.8397 38.1452 56.2413 38.1452C54.6429 38.1452 53.2443 39.2774 53.2443 41.2754C53.2443 43.2734 54.6429 44.4056 56.2413 44.4056Z" fill="#2B2B2B"></path>
+  <path d="M83.3179 32.6L83.4511 32.7332V49.8668L83.3179 50H67.5337L67.4005 49.8668V32.7332L67.5337 32.6H72.9283L73.0615 32.7332V42.4076C73.0615 43.9061 73.894 44.7386 75.3925 44.7386H75.4591C76.9576 44.7386 77.7901 43.9061 77.7901 42.4076V32.7332L77.9233 32.6H83.3179Z" fill="#2B2B2B"></path>
+  <path d="M86.0837 50L85.9505 49.8668V26.8332L86.0837 26.7H91.4783L91.6115 26.8332V43.0736C91.6115 44.1392 92.2109 44.7386 93.2765 44.7386H93.3764L93.5096 44.8718V49.8668L93.3764 50H86.0837Z" fill="#2B2B2B"></path>
+  <path d="M95.9348 50L95.8016 49.8668V39.0602C95.8016 37.9946 95.2021 37.3952 94.1366 37.3952H92.8046L92.6713 37.262V32.7332L92.8046 32.6H95.6684L95.8016 32.4668V27.8222L95.9348 27.689H101.329L101.463 27.8222V32.4668L101.596 32.6H104.867L105 32.7332V37.262L104.867 37.3952H103.035C101.97 37.3952 101.463 37.9946 101.463 39.0602V43.4732C101.463 44.5388 101.97 45.005 103.035 45.005H104.867L105 45.1382V49.8668L104.867 50H95.9348Z" fill="#2B2B2B"></path>
+  <path d="M1.7332 23.3L1.6 23.1668V0.1332L1.7332 0L7.12578 0L7.25898 0.1332V5.7668L7.39218 5.9H9.92298C15.8837 5.9 18.7808 9.5963 18.7808 14.5913C18.7808 19.5863 15.8837 23.3 9.92298 23.3H1.7332ZM9.92298 17.7056C11.5214 17.7056 12.92 16.5734 12.92 14.5754C12.92 12.5774 11.5214 11.4452 9.92298 11.4452C8.32458 11.4452 6.92598 12.5774 6.92598 14.5754C6.92598 16.5734 8.32458 17.7056 9.92298 17.7056Z" fill="#2B2B2B"></path>
+  <path d="M19.384 30.6L19.2508 30.4668V26.8332L19.384 26.7H23.5132C24.7453 26.7 25.2448 26.1305 25.4446 25.2314L25.5445 24.8318C25.7776 23.8328 25.2115 23.3 24.2125 23.3H23.2468L23.1136 23.1668L18.2518 6.0332L18.385 5.9H24.1126L26.3437 15.7901C26.5102 16.4894 26.8765 16.8557 27.4759 16.8557C28.0753 16.8557 28.4416 16.4894 28.6081 15.7901L30.8392 5.9H36.5668L36.7 6.0332L29.7096 30.4668L29.5764 30.6H19.384Z" fill="currentColor"></path>
+</svg></div>
+    <div class="tabs">
+      <button class="tab" data-page="chat" aria-selected="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none">
+          <path d="M8 10.5L9.59 10.235c.843-.141 1.504-.802 1.644-1.645L11.5 7h1l.265 1.59c.141.843.802 1.504 1.645 1.645L16 10.5v1l-1.59.265c-.843.14-1.504.801-1.645 1.644L12.5 15h-1l-.265-1.59c-.14-.843-.801-1.504-1.644-1.645L8 11.5v-1Z" fill="#2B2B2B"/>
+          <path d="M15 6H6a1 1 0 0 0-1 1v10c0 .412.47.647.8.4L7.667 16H18a1 1 0 0 0 1-1v-5h2v8H8.333L3 22V4h12v2Z" fill="#2B2B2B"/>
+          <path d="M21 6.142v.714C19.677 7.047 19.038 7.737 18.856 9h-.713c-.19-1.323-.88-1.962-2.143-2.143v-.714c1.323-.187 1.961-.879 2.143-2.141h.713c.19 1.322.879 1.964 2.143 2.142Z" fill="#2B2B2B"/>
+        </svg> AI Assist
+      </button>
+      <button class="tab" data-page="contact" aria-selected="false">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M22 21H2V3h20v18ZM12 13 5.555 8.703C4.89 8.26 4 8.736 4 9.535V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9.535c0-.798-.89-1.274-1.555-.832L12 13Zm0-2 7.858-5.402A.327.327 0 0 0 20 5.328C20 5.147 19.853 5 19.672 5H4.328C4.147 5 4 5.147 4 5.328c0 .108.053.209.142.27L12 11Z" fill="#2B2B2B"/>
+        </svg> Get In Touch
+      </button>
+      <button class="tab" data-page="book" aria-selected="false">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none">
+          <path d="M11.018 14v-2h2v2h-2Zm-4 0v-2h2v2h-2Zm8 0v-2h2v2h-2Zm-4 4v-2h2v2h-2Zm-4 0v-2h2v2h-2Zm8 0v-2h2v2h-2ZM3.018 22V4h2c.553 0 1-.448 1-1V2h2v1c0 .552.448 1 1 1h6c.553 0 1-.448 1-1V2h2v1c0 .552.448 1 1 1h2V22H3.018Zm2-3c0 .552.448 1 1 1H18.018c.553 0 1-.448 1-1V11a1 1 0 0 0-1-1H6.018a1 1 0 0 0-1 1v8Zm0-12c0 .552.448 1 1 1H18.018c.553 0 1-.448 1-1 0-.552-.447-1-1-1H6.018c-.552 0-1 .448-1 1Z" fill="#2B2B2B"/>
+        </svg> Book A Call
+      </button>
+    </div>
+    <span class="escape-close">ESC
+      <button class="close" id="closeWidget" aria-label="Close">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"><path d="M6.4 19 5 17.6l4.186-4.186a2 2 0 0 0 0-2.828L5 6.4 6.4 5l4.186 4.186a2 2 0 0 0 2.828 0L17.6 5 19 6.4l-4.186 4.186a2 2 0 0 0 0 2.828L19 17.6 17.6 19l-4.186-4.186a2 2 0 0 0-2.828 0L6.4 19Z" fill="#F7F4F2"/></svg>
+      </button>
+    </span>
+  </div>
+
+  <!-- CHAT PAGE -->
+  <div class="page active" id="page-chat">
+    <div class="chat-header">Ask us anything</div>
+    <div class="chat-area" id="messages"></div>
+    
+    <!-- User Registration Form -->
+    <div class="user-registration-form" id="userRegistrationForm" style="display: none;">
+      <div class="registration-content">
+        <h3>Let's get to know you!</h3>
+        <div class="field">
+          <label>Your Name</label>
+          <input type="text" id="regUsername" placeholder="Enter your name" />
+        </div>
+        <div class="field">
+          <label>Email Address</label>
+          <input type="email" id="regEmail" placeholder="Enter your email" />
+        </div>
+        <button class="cta" id="saveUserInfo">Save</button>
+      </div>
+    </div>
+    
+    <div class="composer">
+      <textarea class="input" id="input" placeholder="Type a reply..." rows="1"></textarea>
+      <button class="send" id="send" aria-label="Send">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none">
+          <path d="M13.135 19.178 9.246 10.753 0.822 6.865 19.614.386 13.135 19.178ZM11.2 10.213l1.457 3.157c.075.163.311.151.37-.019l2.189-6.349c.103-.301-.271-.536-.496-.31L11.2 10.213ZM6.648 6.972c-.17.058-.181.295-.018.371l3.157 1.456 3.521-3.52c.225-.225-.009-.6-.309-.496L6.648 6.972Z" fill="#F7F4F2"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- CONTACT PAGE -->
+ <div class="page" id="page-contact">
+    <div class="contact-wrap">
+      <div class="h1">Get in touch</div>
+      <div class="sub">We love hearing from brilliant people with big ideas.</div>
+
+      <div class="field inline">
+        <label>Hey, my name is</label>
+        <input id="name" placeholder="your name" />
+      </div>
+      <div class="field inline">
+        <label>and you can reach me at</label>
+        <input id="email" type="email" placeholder="your email address" />
+      </div>
+
+      <div class="field">
+        <label>I'm curious about</label>
+        <div class="chips" id="topics">
+          <button class="chip" type="button" data-value="Branding"><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Branding</button>
+          <button class="chip" type="button" data-value="Websites"><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Websites</button>
+          <button class="chip" type="button" data-value="Strategy"><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Strategy</button>
+          <button class="chip" type="button" data-value="Something else"><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Something else</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>and this is for</label>
+        <textarea id="project" rows="3" placeholder="project name, idea or message..."></textarea>
+      </div>
+
+      <div class="field">
+        <label>Our budget is</label>
+        <div class="chips" id="budget">
+          <button class="chip" type="button" data-value="$10–50k">$10–50k</button>
+          <button class="chip" type="button" data-value="$50–100k">$50–100k</button>
+          <button class="chip" type="button" data-value="$100k+">$100k+</button>
+          <button class="chip" type="button" data-value="Not sure">not sure</button>
+        </div>
+      </div>
+
+      <button class="cta" id="sendContact">
+        Send message
+        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none">
+  <path d="M14.6348 22.1777L10.7461 13.7529L2.32227 9.86523L21.1143 3.38574L14.6348 22.1777ZM12.7002 13.2129L14.1568 16.3695C14.2323 16.5331 14.4687 16.5213 14.5274 16.3509L16.7166 10.0022C16.8203 9.70129 16.4459 9.46719 16.2209 9.69223L12.7002 13.2129ZM8.14813 9.97159C7.97776 10.0303 7.96589 10.2668 8.12953 10.3423L11.2861 11.7988L14.8068 8.27817C15.0318 8.05313 14.7977 7.67868 14.4969 7.78242L8.14813 9.97159Z" fill="#F7F4F2"/>
+</svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- BOOK A CALL PAGE -->
+  <div class="page" id="page-book">
+    <div class="book-wrap"><!-- empty per your last HTML --></div>
+  </div>
+</section>
+`;
+
+        wrap.innerHTML = launcherHTML + widgetHTML;
+        document.body.appendChild(wrap);
+        
+        // Check user data on page load
+        checkUserDataOnLoad();
+        
+        // Add test functions to global scope for debugging
+        window.testChatbot = {
+          clearUserData: clearUserData,
+          clearChatStorage: clearChatStorage,
+          getCookie: getCookie,
+          setCookie: setCookie,
+          checkUserData: () => {
+            const username = getCookie('chatbot_username');
+            const email = getCookie('chatbot_email');
+            return { username, email };
+          },
+          getSessionId: () => {
+            return sessionId;
+          },
+          getAllSessions: getAllSessions,
+          createNewSession: () => {
+            const newSessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            setCookie('chatbot_sessionId', newSessionId);
+            return newSessionId;
+          },
+          clearSessionId: () => {
+            try {
+              document.cookie = 'chatbot_sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            } catch (error) {
+              console.log('Cookie clear failed');
+            }
+            localStorage.removeItem('chatbot_sessionId');
+            console.log('Session ID cleared');
+          }
+        };
+
+        // --- 4) Behavior --------------------------------------------------------
+        // Dynamic bot name detection (similar to brandname pattern)
+        let botName = 'Botty';
+        const scripts = document.querySelectorAll('script[botname]');
+        scripts.forEach(script => {
+          const bot = script.getAttribute('botname');
+          if(bot){
+              botName = bot;
+          }
+        });
+
+        // API Configuration
+        const API_CONFIG = {
+          baseUrl: "https://anonivate-chatbot-9u9k.onrender.com/chat",
+          websiteUrl: window.location.origin || ""
+        };
+
+        // Generate or retrieve session ID
+        function getOrCreateSessionId() {
+          let sessionId = getCookie('chatbot_sessionId');
+          if (!sessionId) {
+            sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            setCookie('chatbot_sessionId', sessionId);
+            console.log('Created new session ID:', sessionId);
+          } else {
+            console.log('Retrieved existing session ID:', sessionId);
+          }
+          return sessionId;
+        }
+        
+        const sessionId = getOrCreateSessionId();
+        
+        // Cookie and localStorage management with fallback
+        function setCookie(name, value, days = 365) {
+          try {
+            const expires = new Date();
+            expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+            
+            // Also save to localStorage as backup
+            localStorage.setItem(name, value);
+            
+            return true;
+          } catch (error) {
+            console.log(`Cookie failed, using localStorage: ${name}=${value}`);
+            localStorage.setItem(name, value);
+            return false;
+          }
+        }
+        
+        function getCookie(name) {
+          try {
+            // First try to get from cookies
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for(let i = 0; i < ca.length; i++) {
+              let c = ca[i];
+              while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+              if (c.indexOf(nameEQ) === 0) {
+                const value = c.substring(nameEQ.length, c.length);
+                return value;
+              }
+            }
+            
+            // If not found in cookies, try localStorage
+            const localValue = localStorage.getItem(name);
+            if (localValue) {
+              return localValue;
+            }
+            
+            return null;
+          } catch (error) {
+            console.log(`Cookie read failed, trying localStorage: ${name}`);
+            const localValue = localStorage.getItem(name);
+            if (localValue) {
+              return localValue;
+            }
+            return null;
+          }
+        }
+        
+        function saveMessageToStorage(message) {
+          const storageKey = `chatbot_messages_${sessionId}`;
+          const messages = JSON.parse(localStorage.getItem(storageKey) || '[]');
+          messages.push({
+            text: message.text,
+            who: message.who,
+            timestamp: Date.now(),
+            sessionId: sessionId
+          });
+          localStorage.setItem(storageKey, JSON.stringify(messages));
+        }
+        
+        function loadMessagesFromStorage() {
+          const storageKey = `chatbot_messages_${sessionId}`;
+          const messages = JSON.parse(localStorage.getItem(storageKey) || '[]');
+          return messages;
+        }
+        
+        function clearChatStorage() {
+          const storageKey = `chatbot_messages_${sessionId}`;
+          localStorage.removeItem(storageKey);
+        }
+        
+        function getAllSessions() {
+          const sessions = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('chatbot_messages_')) {
+              const sessionId = key.replace('chatbot_messages_', '');
+              sessions.push(sessionId);
+            }
+          }
+          return sessions;
+        }
+        
+        function clearUserData() {
+          // Clear from both cookies and localStorage
+          try {
+            document.cookie = 'chatbot_username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            document.cookie = 'chatbot_email=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            document.cookie = 'chatbot_sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+          } catch (error) {
+            console.log('Cookie clear failed');
+          }
+          localStorage.removeItem('chatbot_username');
+          localStorage.removeItem('chatbot_email');
+          localStorage.removeItem('chatbot_sessionId');
+        }
+        
+        // Get user info from cookies or set defaults
+        const userEmail = getCookie('chatbot_email') || 'user@example.com';
+        const userName = getCookie('chatbot_username') || 'User';
+        
+        // Check cookies on page load and hide form if user data exists
+        function checkUserDataOnLoad() {
+          const username = getCookie('chatbot_username');
+          const email = getCookie('chatbot_email');
+          const hasUserData = username && email && username.trim() !== '' && email.trim() !== '';
+          
+          if (hasUserData) {
+            // Ensure form is hidden on page load
+            const form = document.getElementById('userRegistrationForm');
+            if (form) {
+              form.style.display = 'none';
+            }
+          }
+        }
+
+        // Elements
+        const openBtn = document.getElementById("openWidget");
+        const widget = document.getElementById("widget");
+        const closeBtn = document.getElementById("closeWidget");
+        const tabs = widget.querySelectorAll(".tab");
+        const pages = {
+          chat: document.getElementById("page-chat"),
+          contact: document.getElementById("page-contact"),
+          book: document.getElementById("page-book")
+        };
+
+        // Open from floating button → fullscreen
+        openBtn.addEventListener("click", () => {
+          widget.style.display = "flex";
+          document.body.style.overflow = "hidden";
+          
+          // Check if this is the first time or if user data exists
+          const username = getCookie('chatbot_username');
+          const email = getCookie('chatbot_email');
+          const hasUserData = username && email && username.trim() !== '' && email.trim() !== '';
+          const hasMessages = widget.querySelector(".chat-area .msg-row");
+          
+          if (!hasMessages) {
+            // Load previous messages from localStorage
+            const previousMessages = loadMessagesFromStorage();
+            if (previousMessages.length > 0) {
+              // Restore previous conversation
+              previousMessages.forEach(msg => {
+                addMsg(msg.text, msg.who, false); // Don't save again to avoid duplicates
+              });
+            } else {
+              // First time - show welcome message
+              setTimeout(() => addMsg(`Hey, nice to meet you. What’s your name and email?`, "bot"), 200);
+            }
+            
+            // Show registration form if no user data exists
+            if (!hasUserData) {
+              setTimeout(() => {
+                document.getElementById('userRegistrationForm').style.display = 'block';
+              }, 1000);
+            } else {
+              // Ensure form is hidden
+              document.getElementById('userRegistrationForm').style.display = 'none';
+            }
+          } else {
+            // Ensure form is hidden if messages already exist
+            document.getElementById('userRegistrationForm').style.display = 'none';
+          }
+        });
+
+        // Close (button + ESC)
+        const closeFullscreen = () => {
+          widget.style.display = "none";
+          document.body.style.overflow = "";
+        };
+        closeBtn.addEventListener("click", closeFullscreen);
+        document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeFullscreen(); });
+
+        // Tabs
+        tabs.forEach((t) => {
+          t.addEventListener("click", () => {
+            const page = t.dataset.page;
+            if (!page) return;
+            tabs.forEach((x) => x.setAttribute("aria-selected", String(x === t)));
+            Object.values(pages).forEach((p) => p.classList.remove("active"));
+            pages[page].classList.add("active");
+          });
+        });
+
+        // Chat mechanics
+        const messages = document.getElementById("messages");
+        const input = document.getElementById("input");
+        const send = document.getElementById("send");
+
+        function addMsg(text, who = "user", saveToStorage = true) {
+          const row = document.createElement("div");
+          row.className = "msg-row " + (who === "user" ? "user" : "bot");
+
+          if (who === "bot") {
+            // Bot bubble (avatar on the left, name above bubble) – unchanged
+            const av = document.createElement("div"); av.className = "avatar";
+            row.appendChild(av);
+            const col = document.createElement("div");
+            const name = document.createElement("div"); name.className = "who"; name.textContent = botName;
+            const bubble = document.createElement("div"); bubble.className = "bubble"; bubble.innerHTML = text;
+            col.appendChild(name); col.appendChild(bubble); row.appendChild(col);
+          } else {
+            const bubble = document.createElement("div"); bubble.className = "bubble"; bubble.textContent = text;
+            row.appendChild(bubble);
+          }
+
+          messages.appendChild(row);
+          messages.scrollTop = messages.scrollHeight;
+          
+          // Save message to localStorage
+          if (saveToStorage) {
+            saveMessageToStorage({ text, who });
+          }
+        }
+
+        // Typing indicator: avatar + who inside the SAME div (meta), as requested
+        function addTyping() {
+          const row = document.createElement("div");
+          row.className = "msg-row bot";
+          row.id = "typing";
+
+          const col = document.createElement("div");
+
+          const meta = document.createElement("div");
+          meta.className = "meta";
+          const av = document.createElement("div"); av.className = "avatar";
+          const name = document.createElement("div"); name.className = "who"; name.textContent = botName;
+          meta.appendChild(av); meta.appendChild(name);
+
+          const tile = document.createElement("div");
+          tile.className = "typing";
+          tile.innerHTML = '<span class="dots"><i></i><i></i><i></i></span>';
+
+          col.appendChild(meta);
+          col.appendChild(tile);
+
+          row.appendChild(col);
+          messages.appendChild(row);
+          messages.scrollTop = messages.scrollHeight;
+        }
+        function removeTyping() {
+          const t = document.getElementById("typing");
+          if (t) t.remove();
+        }
+
+        // API call function
+        async function callChatAPI(message) {
+          try {
+            // Get current user data from cookies
+            const currentUserEmail = getCookie('chatbot_email') || userEmail;
+            const currentUserName = getCookie('chatbot_username') || userName;
+            
+            const requestBody = {
+              assistant_name: botName,
+              message: message,
+              session_id: sessionId,
+              user_email: currentUserEmail,
+              user_name: currentUserName
+            };
+            
+            const url = `${API_CONFIG.baseUrl}?website_url=${encodeURIComponent(API_CONFIG.websiteUrl)}`;
+            
+            const response = await fetch(url, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestBody)
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data;
+          } catch (error) {
+            console.error('API call failed:', error);
+            throw error;
+          }
+        }
+
+        function handleSend() {
+          const text = (input.value || "").trim();
+          if (!text) return;
+          
+          // Add user message
+          addMsg(text, "user");
+          input.value = "";
+          
+          // Reset textarea height
+          autoResizeTextarea(input);
+          
+          // Show typing indicator
+          addTyping();
+          
+          // Call API
+          callChatAPI(text)
+            .then(response => {
+              removeTyping();
+              // Assuming the API returns a response with a message field
+              const botResponse = response.message || response.response || response.text || "I'm sorry, I couldn't process your request.";
+              addMsg(botResponse, "bot");
+            })
+            .catch(error => {
+              removeTyping();
+              console.error('Error:', error);
+              addMsg("Sorry, I'm having trouble connecting right now. Please try again later.", "bot");
+            });
+        }
+        // Auto-resize textarea function
+        function autoResizeTextarea(textarea) {
+          textarea.style.height = 'auto';
+          textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        }
+        
+        // Add auto-resize functionality to the input textarea
+        input.addEventListener('input', () => {
+          autoResizeTextarea(input);
+        });
+        
+        send.addEventListener("click", handleSend);
+        input.addEventListener("keydown", (e) => { 
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            handleSend(); 
+          }
+          // Shift+Enter allows for new lines in the input field
+        });
+
+        // User registration form handling
+        const saveUserInfo = document.getElementById("saveUserInfo");
+        if (saveUserInfo) {
+          saveUserInfo.addEventListener("click", () => {
+            const username = document.getElementById("regUsername").value.trim();
+            const email = document.getElementById("regEmail").value.trim();
+            
+            if (!username || !email) {
+              alert("Please fill in both name and email fields.");
+              return;
+            }
+            
+            // Save to cookies (with localStorage fallback)
+            const usernameSaved = setCookie('chatbot_username', username);
+            const emailSaved = setCookie('chatbot_email', email);
+            
+           
+            
+            // Verify data was saved
+            setTimeout(() => {
+              const savedUsername = getCookie('chatbot_username');
+              const savedEmail = getCookie('chatbot_email');
+      
+              
+              if (savedUsername === username && savedEmail === email) {
+                
+              } else {
+                
+              }
+            }, 100);
+            
+            // Hide registration form
+            document.getElementById('userRegistrationForm').style.display = 'none';
+            
+            // Update global user variables
+            window.userName = username;
+            window.userEmail = email;
+            
+            // Show confirmation message
+            addMsg(`Great! Nice to meet you, ${username}! Now I can help you better. What would you like to know?`, "bot");
+          });
+        }
+
+        // Chips: both groups single-select with tick
+        function toggleChips(containerId, multi = false) {
+          const wrap = document.getElementById(containerId);
+          if (!wrap) return;
+          wrap.addEventListener("click", (e) => {
+            const btn = e.target.closest(".chip");
+            if (!btn || !wrap.contains(btn)) return;
+            if (!multi) {
+              wrap.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", "false"));
+              btn.setAttribute("aria-pressed", "true");
+            } else {
+              const pressed = btn.getAttribute("aria-pressed") === "true";
+              btn.setAttribute("aria-pressed", String(!pressed));
+            }
+          });
+        }
+        toggleChips("topics", false);
+        toggleChips("budget", false);
+
+        // Contact submit
+        const sendContact = document.getElementById("sendContact");
+        if (sendContact) {
+          sendContact.addEventListener("click", () => {
+            const name = (document.getElementById("name").value || "").trim();
+            const email = (document.getElementById("email").value || "").trim();
+            const project = (document.getElementById("project").value || "").trim();
+            const topicBtn = document.querySelector("#topics .chip[aria-pressed='true']");
+            const budgetBtn = document.querySelector("#budget .chip[aria-pressed='true']");
+            const topic = topicBtn ? topicBtn.dataset.value : "";
+            const budget = budgetBtn ? budgetBtn.dataset.value : "";
+
+            if (!name || !email) { alert("Please add your name and email."); return; }
+
+            // Replace with your POST endpoint as needed
+            console.log("Contact form:", { name, email, topic, project, budget });
+
+            // Confirmation in chat
+            widget.querySelector('.tab[data-page="chat"]').click();
+            addMsg(`Hi! I'm ${name}. ${project ? "About: " + project : ""}`, "user");
+            addTyping();
+            setTimeout(() => { removeTyping(); addMsg("Thanks for reaching out—our team will email you shortly. ✅", "bot"); }, 900);
+          });
+        }
+      };
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", run, { once: true });
+      } else {
+        run();
+      }
+    })();
