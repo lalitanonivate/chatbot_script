@@ -603,6 +603,7 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
         const send = document.getElementById("send");
 
         function addMsg(text, who = "user", saveToStorage = true) {
+          console.log('[addMsg] who:', who, 'text:', text, 'saveToStorage:', saveToStorage);
           const row = document.createElement("div");
           row.className = "msg-row " + (who === "user" ? "user" : "bot");
 
@@ -660,6 +661,7 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
 
         // API call function
         async function callChatAPI(message) {
+          console.log('[callChatAPI] message:', message);
           try {
             // Get current user data from cookies
             const currentUserEmail = getCookie('chatbot_email') || userEmail;
@@ -696,7 +698,9 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
         }
 
         function handleSend() {
+          console.log('[handleSend] called');
           const text = (input.value || "").trim();
+          console.log('[handleSend] text:', text);
           if (!text) return;
           
           // Add user message
