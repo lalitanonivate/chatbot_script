@@ -782,7 +782,7 @@ body { margin: 0; font-family: var(--font); color: var(--ink) }
             window.userEmail = email;
             
             // Show confirmation message
-            addMsg(`Great! Nice to meet you, ${username}! Now I can help you better. What would you like to know?`, "bot");
+            addMsg(`Nice to meet you, ${username}. What are you curious about today?`, "bot");
           });
         }
 
