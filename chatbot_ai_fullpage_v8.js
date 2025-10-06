@@ -7,6 +7,7 @@
             };
       
             const run = () => {
+              console.log('[run] Chatbot script initialized');
               // --- 1) Fonts -----------------------------------------------------------
               const pre1 = document.createElement("link");
               pre1.rel = "preconnect"; pre1.href = "https://fonts.googleapis.com";
@@ -558,6 +559,7 @@
       
               // Open from floating button → fullscreen
               openBtn.addEventListener("click", () => {
+                console.log('[openBtn] Clicked: Opening widget');
                 widget.style.display = "flex";
                 document.body.style.overflow = "hidden";
                 
@@ -597,15 +599,25 @@
       
               // Close (button + ESC)
               const closeFullscreen = () => {
+                console.log('[closeFullscreen] Closing widget');
                 widget.style.display = "none";
                 document.body.style.overflow = "";
               };
-              closeBtn.addEventListener("click", closeFullscreen);
-              document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeFullscreen(); });
+              closeBtn.addEventListener("click", () => {
+                console.log('[closeBtn] Clicked: Closing widget');
+                closeFullscreen();
+              });
+              document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape") {
+                  console.log('[document] ESC pressed: Closing widget');
+                  closeFullscreen();
+                }
+              });
       
               // Tabs
               tabs.forEach((t) => {
                 t.addEventListener("click", () => {
+                  console.log('[tab] Clicked:', t.dataset.page);
                   const page = t.dataset.page;
                   if (!page) return;
                   tabs.forEach((x) => x.setAttribute("aria-selected", String(x === t)));
@@ -708,9 +720,10 @@
                   }
       
                   const data = await response.json();
+                  console.log('[callChatAPI] API response:', data);
                   return data;
                 } catch (error) {
-                  console.error('API call failed:', error);
+                  console.error('[callChatAPI] API error:', error);
                   throw error;
                 }
               }
@@ -734,12 +747,14 @@
                 // Call API
                 callChatAPI(text)
                   .then(response => {
+                    console.log('[callChatAPI] API response:', response);
                     removeTyping();
                     // Assuming the API returns a response with a message field
                     const botResponse = response.message || response.response || response.text || "I'm sorry, I couldn't process your request.";
                     addMsg(botResponse, "bot");
                   })
                   .catch(error => {
+                    console.error('[callChatAPI] API error:', error);
                     removeTyping();
                     console.error('Error:', error);
                     addMsg("Sorry, I'm having trouble connecting right now. Please try again later.", "bot");
@@ -753,12 +768,17 @@
               
               // Add auto-resize functionality to the input textarea
               input.addEventListener('input', () => {
+                console.log('[input] User typing:', input.value);
                 autoResizeTextarea(input);
               });
               
-              send.addEventListener("click", handleSend);
+              send.addEventListener("click", () => {
+                console.log('[send] Clicked: Sending message');
+                handleSend();
+              });
               input.addEventListener("keydown", (e) => { 
                 if (e.key === "Enter" && !e.shiftKey) {
+                  console.log('[input] Enter pressed: Sending message');
                   e.preventDefault();
                   handleSend(); 
                 }
@@ -773,6 +793,7 @@
                 recognition.maxAlternatives = 1;
                 let recognizing = false;
                 micBtn.addEventListener("click", () => {
+                  console.log('[micBtn] Clicked: Starting voice recognition');
                   if (recognizing) {
                     recognition.stop();
                     micBtn.classList.remove("active");
