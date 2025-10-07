@@ -1,3 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot Widget</title>
+</head>
+<body>
+  <!-- The chatbot UI will be injected by the script -->
+  <script>
     (() => {
             // --- 0) Helpers -----------------------------------------------------------
             const once = (id, node) => {
@@ -7,7 +17,6 @@
             };
       
             const run = () => {
-              console.log('[run] Chatbot script initialized');
               // --- 1) Fonts -----------------------------------------------------------
               const pre1 = document.createElement("link");
               pre1.rel = "preconnect"; pre1.href = "https://fonts.googleapis.com";
@@ -196,20 +205,6 @@
       }
       
       @media (max-width:640px){ #widget .composer{ position: sticky; bottom: 0 } }
-      #widget .mic.active {
-        background: #BFE5DE;
-        border-radius: 8px;
-        transition: background 0.2s;
-      }
-      #widget .mic {
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        display: grid;
-        place-items: center;
-        padding: 0 8px;
-        height: 40px;
-      }
       `;
               const style = document.createElement("style");
               style.textContent = css;
@@ -293,7 +288,7 @@
           
           <div class="composer">
             <textarea class="input" id="input" placeholder="Type a reply..." rows="1"></textarea>
-            <button class="mic" id="mic" aria-label="Voice Input" type="button" style="margin-right: 8px;" title="Click to use voice input. Your browser will ask for permission the first time.">
+            <button class="mic" id="mic" aria-label="Voice Input" type="button" style="margin-right: 8px;">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V21h-3a1 1 0 1 0 0 2h8a1 1 0 1 0 0-2h-3v-2.08A7 7 0 0 0 17 12Z" fill="#6E6A65"/></svg>
             </button>
             <button class="send" id="send" aria-label="Send">
@@ -559,7 +554,6 @@
       
               // Open from floating button → fullscreen
               openBtn.addEventListener("click", () => {
-                console.log('[openBtn] Clicked: Opening widget');
                 widget.style.display = "flex";
                 document.body.style.overflow = "hidden";
                 
@@ -599,25 +593,15 @@
       
               // Close (button + ESC)
               const closeFullscreen = () => {
-                console.log('[closeFullscreen] Closing widget');
                 widget.style.display = "none";
                 document.body.style.overflow = "";
               };
-              closeBtn.addEventListener("click", () => {
-                console.log('[closeBtn] Clicked: Closing widget');
-                closeFullscreen();
-              });
-              document.addEventListener("keydown", (e) => {
-                if (e.key === "Escape") {
-                  console.log('[document] ESC pressed: Closing widget');
-                  closeFullscreen();
-                }
-              });
+              closeBtn.addEventListener("click", closeFullscreen);
+              document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeFullscreen(); });
       
               // Tabs
               tabs.forEach((t) => {
                 t.addEventListener("click", () => {
-                  console.log('[tab] Clicked:', t.dataset.page);
                   const page = t.dataset.page;
                   if (!page) return;
                   tabs.forEach((x) => x.setAttribute("aria-selected", String(x === t)));
@@ -720,10 +704,9 @@
                   }
       
                   const data = await response.json();
-                  console.log('[callChatAPI] API response:', data);
                   return data;
                 } catch (error) {
-                  console.error('[callChatAPI] API error:', error);
+                  console.error('API call failed:', error);
                   throw error;
                 }
               }
@@ -747,14 +730,12 @@
                 // Call API
                 callChatAPI(text)
                   .then(response => {
-                    console.log('[callChatAPI] API response:', response);
                     removeTyping();
                     // Assuming the API returns a response with a message field
                     const botResponse = response.message || response.response || response.text || "I'm sorry, I couldn't process your request.";
                     addMsg(botResponse, "bot");
                   })
                   .catch(error => {
-                    console.error('[callChatAPI] API error:', error);
                     removeTyping();
                     console.error('Error:', error);
                     addMsg("Sorry, I'm having trouble connecting right now. Please try again later.", "bot");
@@ -768,17 +749,12 @@
               
               // Add auto-resize functionality to the input textarea
               input.addEventListener('input', () => {
-                console.log('[input] User typing:', input.value);
                 autoResizeTextarea(input);
               });
               
-              send.addEventListener("click", () => {
-                console.log('[send] Clicked: Sending message');
-                handleSend();
-              });
+              send.addEventListener("click", handleSend);
               input.addEventListener("keydown", (e) => { 
                 if (e.key === "Enter" && !e.shiftKey) {
-                  console.log('[input] Enter pressed: Sending message');
                   e.preventDefault();
                   handleSend(); 
                 }
@@ -793,7 +769,6 @@
                 recognition.maxAlternatives = 1;
                 let recognizing = false;
                 micBtn.addEventListener("click", () => {
-                  console.log('[micBtn] Clicked: Starting voice recognition');
                   if (recognizing) {
                     recognition.stop();
                     micBtn.classList.remove("active");
@@ -921,4 +896,6 @@
               run();
             }
           })();
-  
+  </script>
+</body>
+</html>
