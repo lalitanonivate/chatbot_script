@@ -1,101 +1,104 @@
+// Inject Bugrino font faces dynamically
+(function() {
+  const fontCSS = `
+    @font-face {
+      font-family: 'bugrinoblack';
+      src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-black-webfont.woff2') format('woff2'),
+           url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-black-webfont.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;   
+    }
+    @font-face {
+      font-family: 'bugrinobold';
+      src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-bold-webfont.woff2') format('woff2'),
+           url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-bold-webfont.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'bugrinofine';
+      src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-fine-webfont.woff2') format('woff2'),
+           url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-fine-webfont.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'bugrinoheavy';
+      src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-heavy-webfont.woff2') format('woff2'),
+           url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-heavy-webfont.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'bugrinolight';
+      src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-light-webfont.woff2') format('woff2'),
+           url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-light-webfont.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'bugrinomedium';
+      src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-medium-webfont.woff2') format('woff2'),
+           url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-medium-webfont.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'bugrinoregular';
+      src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-regular-webfont.woff2') format('woff2'),
+           url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-regular-webfont.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'bugrinosemibold';
+      src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-semibold-webfont.woff2') format('woff2'),
+           url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-semibold-webfont.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'bugrinothin';
+      src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-thin-webfont.woff2') format('woff2'),
+           url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-thin-webfont.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
+  `;
+  const style = document.createElement('style');
+  style.textContent = fontCSS;
+  document.head.appendChild(style);
+})();
+// Copied from v10, with extra console.log statements for debugging
+(() => {
+  console.log('chatbot_ai_fullpage_v11.js loaded');
+  // --- 0) Helpers -----------------------------------------------------------
+  const once = (id, node) => {
+    if (document.getElementById(id)) return;
+    node.id = id;
+    document.head.appendChild(node);
+  };
 
-    // Inject Bugrino font faces dynamically
-    (function() {
-      const fontCSS = `
-        @font-face {
-          font-family: 'bugrinoblack';
-          src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-black-webfont.woff2') format('woff2'),
-               url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-black-webfont.woff') format('woff');
-          font-weight: normal;
-          font-style: normal;   
-        }
-        @font-face {
-          font-family: 'bugrinobold';
-          src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-bold-webfont.woff2') format('woff2'),
-               url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-bold-webfont.woff') format('woff');
-          font-weight: normal;
-          font-style: normal;
-        }
-        @font-face {
-          font-family: 'bugrinofine';
-          src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-fine-webfont.woff2') format('woff2'),
-               url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-fine-webfont.woff') format('woff');
-          font-weight: normal;
-          font-style: normal;
-        }
-        @font-face {
-          font-family: 'bugrinoheavy';
-          src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-heavy-webfont.woff2') format('woff2'),
-               url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-heavy-webfont.woff') format('woff');
-          font-weight: normal;
-          font-style: normal;
-        }
-        @font-face {
-          font-family: 'bugrinolight';
-          src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-light-webfont.woff2') format('woff2'),
-               url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-light-webfont.woff') format('woff');
-          font-weight: normal;
-          font-style: normal;
-        }
-        @font-face {
-          font-family: 'bugrinomedium';
-          src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-medium-webfont.woff2') format('woff2'),
-               url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-medium-webfont.woff') format('woff');
-          font-weight: normal;
-          font-style: normal;
-        }
-        @font-face {
-          font-family: 'bugrinoregular';
-          src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-regular-webfont.woff2') format('woff2'),
-               url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-regular-webfont.woff') format('woff');
-          font-weight: normal;
-          font-style: normal;
-        }
-        @font-face {
-          font-family: 'bugrinosemibold';
-          src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-semibold-webfont.woff2') format('woff2'),
-               url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-semibold-webfont.woff') format('woff');
-          font-weight: normal;
-          font-style: normal;
-        }
-        @font-face {
-          font-family: 'bugrinothin';
-          src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-thin-webfont.woff2') format('woff2'),
-               url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-thin-webfont.woff') format('woff');
-          font-weight: normal;
-          font-style: normal;
-        }
-      `;
-      const style = document.createElement('style');
-      style.textContent = fontCSS;
-      document.head.appendChild(style);
-    })();
-            // --- 0) Helpers -----------------------------------------------------------
-            const once = (id, node) => {
-              if (document.getElementById(id)) return;
-              node.id = id;
-              document.head.appendChild(node);
-            };
-      
-            const run = () => {
-              // --- 1) Fonts -----------------------------------------------------------
-              const pre1 = document.createElement("link");
-              pre1.rel = "preconnect"; pre1.href = "https://fonts.googleapis.com";
-              const pre2 = document.createElement("link");
-              pre2.rel = "preconnect"; pre2.href = "https://fonts.gstatic.com"; pre2.crossOrigin = "anonymous";
-              const gfont1 = document.createElement("link");
-              gfont1.rel = "stylesheet";
-              gfont1.href = "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap";
-              const gfont2 = document.createElement("link");
-              gfont2.rel = "stylesheet";
-              gfont2.href = "https://fonts.googleapis.com/css2?family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap";
-              once("bdw-pre-gfonts-1", pre1);
-              once("bdw-pre-gfonts-2", pre2);
-              once("bdw-font-poppins", gfont1);
-              once("bdw-font-inclusive", gfont2);
-      
-              // --- 2) Styles ----------------------------------------------------------
-              const css = `
+  const run = () => {
+    console.log('[v11] run() called');
+    // --- 1) Fonts -----------------------------------------------------------
+    const pre1 = document.createElement("link");
+    pre1.rel = "preconnect"; pre1.href = "https://fonts.googleapis.com";
+    const pre2 = document.createElement("link");
+    pre2.rel = "preconnect"; pre2.href = "https://fonts.gstatic.com"; pre2.crossOrigin = "anonymous";
+    const gfont1 = document.createElement("link");
+    gfont1.rel = "stylesheet";
+    gfont1.href = "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap";
+    const gfont2 = document.createElement("link");
+    gfont2.rel = "stylesheet";
+    gfont2.href = "https://fonts.googleapis.com/css2?family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap";
+    once("bdw-pre-gfonts-1", pre1);
+    once("bdw-pre-gfonts-2", pre2);
+    once("bdw-font-poppins", gfont1);
+    once("bdw-font-inclusive", gfont2);
+
+    // --- 2) Styles ----------------------------------------------------------
+    const css = `
       :root {
         --font: "Inclusive Sans", sans-serif;
         --bg-canvas: #F7F4F2;
@@ -336,18 +339,18 @@
       }
       
       @media (max-width:640px){ #widget .composer{ position: sticky; bottom: 0 } }
-      `;
-              const style = document.createElement("style");
-              style.textContent = css;
-              once("bdw-style", style);
-      
-              // --- 3) DOM: Launcher + Widget -----------------------------------------
-              const wrap = document.createElement("div");
-              wrap.id = "bdw-root";
-              wrap.style.all = "unset"; // isolate inheritable glitches a bit
-              wrap.style.setProperty('--font', '"Inclusive Sans", sans-serif');
-      
-              const launcherHTML = `
+    `;
+    const style = document.createElement("style");
+    style.textContent = css;
+    once("bdw-style", style);
+
+    // --- 3) DOM: Launcher + Widget -----------------------------------------
+    const wrap = document.createElement("div");
+    wrap.id = "bdw-root";
+    wrap.style.all = "unset"; // isolate inheritable glitches a bit
+    wrap.style.setProperty('--font', '"Inclusive Sans", sans-serif');
+
+    const launcherHTML = `
       <button class="launcher" id="openWidget" aria-label="Open chat">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none">
           <path d="M4.69 11.78 7.47 11.316c1.475-.246 2.631-1.402 2.877-2.877l.464-2.784h1.75l.464 2.784c.246 1.475 1.402 2.631 2.877 2.877L18.69 11.78v1.75l-2.784.464a3.5 3.5 0 0 0-2.877 2.877l-.464 2.784h-1.75l-.464-2.784a3.5 3.5 0 0 0-2.877-2.877L4.69 13.53v-1.75Z" fill="#2B2B2B" />
@@ -355,8 +358,8 @@
         </svg>
         <span>Ask us anything</span>
       </button>`;
-      
-              const widgetHTML = `
+
+    const widgetHTML = `
       <section class="widget" id="widget" role="dialog" aria-modal="true" aria-label="Chat and contact">
         <div class="topbar">
           <div class="logo" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="105" height="51" viewBox="0 0 105 51" fill="none">
@@ -485,546 +488,545 @@
         </div>
       </section>
       `;
-      
-              wrap.innerHTML = launcherHTML + widgetHTML;
-              document.body.appendChild(wrap);
-              
-              // Check user data on page load
-              checkUserDataOnLoad();
-              
-              // Add test functions to global scope for debugging
-              window.testChatbot = {
-                clearUserData: clearUserData,
-                clearChatStorage: clearChatStorage,
-                getCookie: getCookie,
-                setCookie: setCookie,
-                checkUserData: () => {
-                  const username = getCookie('chatbot_username_new_');
-                  const email = getCookie('chatbot_email_new_');
-                  return { username, email };
-                },
-                getSessionId: () => {
-                  return sessionId;
-                },
-                getAllSessions: getAllSessions,
-                createNewSession: () => {
-                  const newSessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                  setCookie('chatbot_sessionId', newSessionId);
-                  return newSessionId;
-                },
-                clearSessionId: () => {
-                  try {
-                    document.cookie = 'chatbot_sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-                  } catch (error) {
-                    console.log('Cookie clear failed');
-                  }
-                  localStorage.removeItem('chatbot_sessionId');
-                  console.log('Session ID cleared');
-                }
-              };
-      
-              // --- 4) Behavior --------------------------------------------------------
-              // Dynamic bot name detection (similar to brandname pattern)
-              let botName = 'Botty';
-              const scripts = document.querySelectorAll('script[botname]');
-              scripts.forEach(script => {
-                const bot = script.getAttribute('botname');
-                if(bot){
-                    botName = bot;
-                }
-              });
-      
-              // API Configuration
-              const API_CONFIG = {
-                baseUrl: "https://anonivate-chatbot-9u9k.onrender.com/chat",
-                websiteUrl: window.location.origin || ""
-              };
-      
-              // Generate or retrieve session ID
-              function getOrCreateSessionId() {
-                let sessionId = getCookie('chatbot_sessionId');
-                if (!sessionId) {
-                  sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                  setCookie('chatbot_sessionId', sessionId);
-                  console.log('Created new session ID:', sessionId);
-                } else {
-                  console.log('Retrieved existing session ID:', sessionId);
-                }
-                return sessionId;
-              }
-              
-              const sessionId = getOrCreateSessionId();
-              
-              // Cookie and localStorage management with fallback
-              function setCookie(name, value, days = 365) {
-                try {
-                  const expires = new Date();
-                  expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-                  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
-                  
-                  // Also save to localStorage as backup
-                  localStorage.setItem(name, value);
-                  
-                  return true;
-                } catch (error) {
-                  console.log(`Cookie failed, using localStorage: ${name}=${value}`);
-                  localStorage.setItem(name, value);
-                  return false;
-                }
-              }
-              
-              function getCookie(name) {
-                try {
-                  // First try to get from cookies
-                  const nameEQ = name + "=";
-                  const ca = document.cookie.split(';');
-                  for(let i = 0; i < ca.length; i++) {
-                    let c = ca[i];
-                    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-                    if (c.indexOf(nameEQ) === 0) {
-                      const value = c.substring(nameEQ.length, c.length);
-                      return value;
-                    }
-                  }
-                  
-                  // If not found in cookies, try localStorage
-                  const localValue = localStorage.getItem(name);
-                  if (localValue) {
-                    return localValue;
-                  }
-                  
-                  return null;
-                } catch (error) {
-                  console.log(`Cookie read failed, trying localStorage: ${name}`);
-                  const localValue = localStorage.getItem(name);
-                  if (localValue) {
-                    return localValue;
-                  }
-                  return null;
-                }
-              }
-              
-              function saveMessageToStorage(message) {
-                const storageKey = `chatbot_messages_new_${sessionId}`;
-                const messages = JSON.parse(localStorage.getItem(storageKey) || '[]');
-                messages.push({
-                  text: message.text,
-                  who: message.who,
-                  timestamp: Date.now(),
-                  sessionId: sessionId
-                });
-                localStorage.setItem(storageKey, JSON.stringify(messages));
-              }
-              
-              function loadMessagesFromStorage() {
-                const storageKey = `chatbot_messages_new_${sessionId}`;
-                const messages = JSON.parse(localStorage.getItem(storageKey) || '[]');
-                return messages;
-              }
-              
-              function clearChatStorage() {
-                const storageKey = `chatbot_messages_new_${sessionId}`;
-                localStorage.removeItem(storageKey);
-              }
-              
-              function getAllSessions() {
-                const sessions = [];
-                for (let i = 0; i < localStorage.length; i++) {
-                  const key = localStorage.key(i);
-                  if (key && key.startsWith('chatbot_messages_new_')) {
-                    const sessionId = key.replace('chatbot_messages_', '');
-                    sessions.push(sessionId);
-                  }
-                }
-                return sessions;
-              }
-              
-              function clearUserData() {
-                // Clear from both cookies and localStorage
-                try {
-                  document.cookie = 'chatbot_username_new_=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-                  document.cookie = 'chatbot_email_new_=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-                  document.cookie = 'chatbot_sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-                } catch (error) {
-                  console.log('Cookie clear failed');
-                }
-                localStorage.removeItem('chatbot_username_new_');
-                localStorage.removeItem('chatbot_email_new_');
-                localStorage.removeItem('chatbot_sessionId');
-              }
-              
-              // Get user info from cookies or set defaults
-              const userEmail = getCookie('chatbot_email_new_') || 'user@example.com';
-              const userName = getCookie('chatbot_username_new_') || 'User';
-              
-              // Check cookies on page load and hide form if user data exists
-              function checkUserDataOnLoad() {
-                const username = getCookie('chatbot_username_new_');
-                const email = getCookie('chatbot_email_new_');
-                const hasUserData = username && email && username.trim() !== '' && email.trim() !== '';
-                
-                if (hasUserData) {
-                  // Ensure form is hidden on page load
-                  const form = document.getElementById('userRegistrationForm');
-                  if (form) {
-                    form.style.display = 'none';
-                  }
-                }
-              }
-      
-              // Elements
-              const openBtn = document.getElementById("openWidget");
-              const widget = document.getElementById("widget");
-              const closeBtn = document.getElementById("closeWidget");
-              const tabs = widget.querySelectorAll(".tab");
-              const pages = {
-                chat: document.getElementById("page-chat"),
-                contact: document.getElementById("page-contact"),
-                book: document.getElementById("page-book")
-              };
-      
-              // Open from floating button → fullscreen
-              openBtn.addEventListener("click", () => {
-                widget.style.display = "flex";
-                document.body.style.overflow = "hidden";
-                
-                // Check if this is the first time or if user data exists
-                const username = getCookie('chatbot_username_new_');
-                const email = getCookie('chatbot_email_new_');
-                const hasUserData = username && email && username.trim() !== '' && email.trim() !== '';
-                const hasMessages = widget.querySelector(".chat-area .msg-row");
-                
-                if (!hasMessages) {
-                  // Load previous messages from localStorage
-                  const previousMessages = loadMessagesFromStorage();
-                  if (previousMessages.length > 0) {
-                    // Restore previous conversation
-                    previousMessages.forEach(msg => {
-                      addMsg(msg.text, msg.who, false); // Don't save again to avoid duplicates
-                    });
-                  } else {
-                    // First time - show welcome message
-                    setTimeout(() => addMsg(`Hey, nice to meet you. What’s your name and email?`, "bot"), 200);
-                  }
-                  
-                  // Show registration form if no user data exists
-                  if (!hasUserData) {
-                    setTimeout(() => {
-                      document.getElementById('userRegistrationForm').style.display = 'block';
-                    }, 1000);
-                  } else {
-                    // Ensure form is hidden
-                    document.getElementById('userRegistrationForm').style.display = 'none';
-                  }
-                } else {
-                  // Ensure form is hidden if messages already exist
-                  document.getElementById('userRegistrationForm').style.display = 'none';
-                }
-              });
-      
-              // Close (button + ESC)
-              const closeFullscreen = () => {
-                widget.style.display = "none";
-                document.body.style.overflow = "";
-              };
-              closeBtn.addEventListener("click", closeFullscreen);
-              document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeFullscreen(); });
-      
-              // Tabs
-              tabs.forEach((t) => {
-                t.addEventListener("click", () => {
-                  const page = t.dataset.page;
-                  if (!page) return;
-                  tabs.forEach((x) => x.setAttribute("aria-selected", String(x === t)));
-                  Object.values(pages).forEach((p) => p.classList.remove("active"));
-                  pages[page].classList.add("active");
-                });
-              });
-      
-              // Chat mechanics
-              const messages = document.getElementById("messages");
-              const input = document.getElementById("input");
-              const send = document.getElementById("send");
-              const micBtn = document.getElementById("mic");
-      
-              function addMsg(text, who = "user", saveToStorage = true) {
-                console.log('[addMsg] who:', who, 'text:', text, 'saveToStorage:', saveToStorage);
-                const row = document.createElement("div");
-                row.className = "msg-row " + (who === "user" ? "user" : "bot");
-      
-                if (who === "bot") {
-                  // Bot bubble (avatar on the left, name above bubble) – unchanged
-                  const av = document.createElement("div"); av.className = "avatar";
-                  row.appendChild(av);
-                  const col = document.createElement("div");
-                  const name = document.createElement("div"); name.className = "who"; name.textContent = botName;
-                  const bubble = document.createElement("div"); bubble.className = "bubble"; bubble.innerHTML = text;
-                  col.appendChild(name); col.appendChild(bubble); row.appendChild(col);
-                } else {
-                  const bubble = document.createElement("div"); bubble.className = "bubble"; bubble.textContent = text;
-                  row.appendChild(bubble);
-                }
-      
-                messages.appendChild(row);
-                messages.scrollTop = messages.scrollHeight;
-                
-                // Save message to localStorage
-                if (saveToStorage) {
-                  saveMessageToStorage({ text, who });
-                }
-              }
-      
-              // Typing indicator: avatar + who inside the SAME div (meta), as requested
-              function addTyping() {
-                const row = document.createElement("div");
-                row.className = "msg-row bot";
-                row.id = "typing";
-      
-                const col = document.createElement("div");
-      
-                const meta = document.createElement("div");
-                meta.className = "meta";
-                const av = document.createElement("div"); av.className = "avatar";
-                const name = document.createElement("div"); name.className = "who"; name.textContent = botName;
-                meta.appendChild(av); meta.appendChild(name);
-      
-                const tile = document.createElement("div");
-                tile.className = "typing";
-                tile.innerHTML = '<span class="dots"><i></i><i></i><i></i></span>';
-      
-                col.appendChild(meta);
-                col.appendChild(tile);
-      
-                row.appendChild(col);
-                messages.appendChild(row);
-                messages.scrollTop = messages.scrollHeight;
-              }
-              function removeTyping() {
-                const t = document.getElementById("typing");
-                if (t) t.remove();
-              }
-      
-              // API call function
-              async function callChatAPI(message) {
-                console.log('[callChatAPI] message:', message);
-                try {
-                  // Get current user data from cookies
-                    const currentUserEmail = getCookie('chatbot_email_new_') || userEmail;
-                  const currentUserName = getCookie('chatbot_username_new_') || userName;
-                  
-                  const requestBody = {
-                    assistant_name: botName,
-                    message: message,
-                    session_id: sessionId,
-                    user_email: currentUserEmail,
-                    user_name: currentUserName
-                  };
-                  
-                  const url = `${API_CONFIG.baseUrl}?website_url=${encodeURIComponent(API_CONFIG.websiteUrl)}`;
-                  
-                  const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestBody)
-                  });
-      
-                  if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                  }
-      
-                  const data = await response.json();
-                  return data;
-                } catch (error) {
-                  console.error('API call failed:', error);
-                  throw error;
-                }
-              }
-      
-              function handleSend() {
-                console.log('[handleSend] called');
-                const text = (input.value || "").trim();
-                console.log('[handleSend] text:', text);
-                if (!text) return;
-                
-                // Add user message
-                addMsg(text, "user");
-                input.value = "";
-                
-                // Reset textarea height
-                autoResizeTextarea(input);
-                
-                // Show typing indicator
-                addTyping();
-                
-                // Call API
-                callChatAPI(text)
-                  .then(response => {
-                    removeTyping();
-                    // Assuming the API returns a response with a message field
-                    const botResponse = response.message || response.response || response.text || "I'm sorry, I couldn't process your request.";
-                    addMsg(botResponse, "bot");
-                  })
-                  .catch(error => {
-                    removeTyping();
-                    console.error('Error:', error);
-                    addMsg("Sorry, I'm having trouble connecting right now. Please try again later.", "bot");
-                  });
-              }
-              // Auto-resize textarea function
-              function autoResizeTextarea(textarea) {
-                textarea.style.height = 'auto';
-                textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
-              }
-              
-              // Add auto-resize functionality to the input textarea
-              input.addEventListener('input', () => {
-                autoResizeTextarea(input);
-              });
-              
-              send.addEventListener("click", handleSend);
-              input.addEventListener("keydown", (e) => { 
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSend(); 
-                }
-                // Shift+Enter allows for new lines in the input field
-              });
 
-              if (micBtn && window.SpeechRecognition || window.webkitSpeechRecognition) {
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                const recognition = new SpeechRecognition();
-                recognition.lang = "en-US";
-                recognition.interimResults = false;
-                recognition.maxAlternatives = 1;
-                let recognizing = false;
-                micBtn.addEventListener("click", () => {
-                  if (recognizing) {
-                    recognition.stop();
-                    micBtn.classList.remove("active");
-                    recognizing = false;
-                    return;
-                  }
-                  recognition.start();
-                  micBtn.classList.add("active");
-                  recognizing = true;
-                });
-                recognition.onresult = (event) => {
-                  const transcript = event.results[0][0].transcript;
-                  input.value = transcript;
-                  input.focus();
-                  micBtn.classList.remove("active");
-                  recognizing = false;
-                  // Optionally, auto-send:
-                  // handleSend();
-                };
-                recognition.onerror = (event) => {
-                  console.error("Speech recognition error:", event.error);
-                  micBtn.classList.remove("active");
-                  recognizing = false;
-                };
-                recognition.onend = () => {
-                  micBtn.classList.remove("active");
-                  recognizing = false;
-                };
-              } else if (micBtn) {
-                micBtn.disabled = true;
-                micBtn.title = "Speech recognition not supported in this browser.";
-              }
+    wrap.innerHTML = launcherHTML + widgetHTML;
+    document.body.appendChild(wrap);
+    console.log('[v11] Widget DOM appended');
+    // Check user data on page load
+    checkUserDataOnLoad();
+    
+    // Add test functions to global scope for debugging
+    window.testChatbot = {
+      clearUserData: clearUserData,
+      clearChatStorage: clearChatStorage,
+      getCookie: getCookie,
+      setCookie: setCookie,
+      checkUserData: () => {
+        const username = getCookie('chatbot_username_new_');
+        const email = getCookie('chatbot_email_new_');
+        return { username, email };
+      },
+      getSessionId: () => {
+        return sessionId;
+      },
+      getAllSessions: getAllSessions,
+      createNewSession: () => {
+        const newSessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        setCookie('chatbot_sessionId', newSessionId);
+        return newSessionId;
+      },
+      clearSessionId: () => {
+        try {
+          document.cookie = 'chatbot_sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        } catch (error) {
+          console.log('Cookie clear failed');
+        }
+        localStorage.removeItem('chatbot_sessionId');
+        console.log('Session ID cleared');
+      }
+    };
+
+    // --- 4) Behavior --------------------------------------------------------
+    // Dynamic bot name detection (similar to brandname pattern)
+    let botName = 'Botty';
+    const scripts = document.querySelectorAll('script[botname]');
+    scripts.forEach(script => {
+      const bot = script.getAttribute('botname');
+      if(bot){
+          botName = bot;
+      }
+    });
+
+    // API Configuration
+    const API_CONFIG = {
+      baseUrl: "https://anonivate-chatbot-9u9k.onrender.com/chat",
+      websiteUrl: window.location.origin || ""
+    };
+
+    // Generate or retrieve session ID
+    function getOrCreateSessionId() {
+      let sessionId = getCookie('chatbot_sessionId');
+      if (!sessionId) {
+        sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        setCookie('chatbot_sessionId', sessionId);
+        console.log('[v11] Created new session ID:', sessionId);
+      } else {
+        console.log('[v11] Retrieved existing session ID:', sessionId);
+      }
+      return sessionId;
+    }
+    
+    const sessionId = getOrCreateSessionId();
+    
+    // Cookie and localStorage management with fallback
+    function setCookie(name, value, days = 365) {
+      try {
+        const expires = new Date();
+        expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+        document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+        
+        // Also save to localStorage as backup
+        localStorage.setItem(name, value);
+        
+        return true;
+      } catch (error) {
+        console.log(`Cookie failed, using localStorage: ${name}=${value}`);
+        localStorage.setItem(name, value);
+        return false;
+      }
+    }
+    
+    function getCookie(name) {
+      try {
+        // First try to get from cookies
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for(let i = 0; i < ca.length; i++) {
+          let c = ca[i];
+          while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+          if (c.indexOf(nameEQ) === 0) {
+            const value = c.substring(nameEQ.length, c.length);
+            return value;
+          }
+        }
+        
+        // If not found in cookies, try localStorage
+        const localValue = localStorage.getItem(name);
+        if (localValue) {
+          return localValue;
+        }
+        
+        return null;
+      } catch (error) {
+        console.log(`Cookie read failed, trying localStorage: ${name}`);
+        const localValue = localStorage.getItem(name);
+        if (localValue) {
+          return localValue;
+        }
+        return null;
+      }
+    }
+    
+    function saveMessageToStorage(message) {
+      const storageKey = `chatbot_messages_new_${sessionId}`;
+      const messages = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      messages.push({
+        text: message.text,
+        who: message.who,
+        timestamp: Date.now(),
+        sessionId: sessionId
+      });
+      localStorage.setItem(storageKey, JSON.stringify(messages));
+    }
+    
+    function loadMessagesFromStorage() {
+      const storageKey = `chatbot_messages_new_${sessionId}`;
+      const messages = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      return messages;
+    }
+    
+    function clearChatStorage() {
+      const storageKey = `chatbot_messages_new_${sessionId}`;
+      localStorage.removeItem(storageKey);
+    }
+    
+    function getAllSessions() {
+      const sessions = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('chatbot_messages_new_')) {
+          const sessionId = key.replace('chatbot_messages_', '');
+          sessions.push(sessionId);
+        }
+      }
+      return sessions;
+    }
+    
+    function clearUserData() {
+      // Clear from both cookies and localStorage
+      try {
+        document.cookie = 'chatbot_username_new_=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        document.cookie = 'chatbot_email_new_=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        document.cookie = 'chatbot_sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      } catch (error) {
+        console.log('Cookie clear failed');
+      }
+      localStorage.removeItem('chatbot_username_new_');
+      localStorage.removeItem('chatbot_email_new_');
+      localStorage.removeItem('chatbot_sessionId');
+    }
+    
+    // Get user info from cookies or set defaults
+    const userEmail = getCookie('chatbot_email_new_') || 'user@example.com';
+    const userName = getCookie('chatbot_username_new_') || 'User';
+    
+    // Check cookies on page load and hide form if user data exists
+    function checkUserDataOnLoad() {
+      const username = getCookie('chatbot_username_new_');
+      const email = getCookie('chatbot_email_new_');
+      const hasUserData = username && email && username.trim() !== '' && email.trim() !== '';
       
-              // User registration form handling
-              const saveUserInfo = document.getElementById("saveUserInfo");
-              if (saveUserInfo) {
-                saveUserInfo.addEventListener("click", () => {
-                  const username = document.getElementById("regUsername").value.trim();
-                  const email = document.getElementById("regEmail").value.trim();
-                  
-                  if (!username || !email) {
-                    alert("Please fill in both name and email fields.");
-                    return;
-                  }
-                  
-                  // Save to cookies (with localStorage fallback)
-                  const usernameSaved = setCookie('chatbot_username_new_', username);
-                  const emailSaved = setCookie('chatbot_email_new_', email);
-                  
-                 
-                  
-                  // Verify data was saved
-                  setTimeout(() => {
-                      const savedUsername = getCookie('chatbot_username_new_');
-                    const savedEmail = getCookie('chatbot_email_new_');
+      if (hasUserData) {
+        // Ensure form is hidden on page load
+        const form = document.getElementById('userRegistrationForm');
+        if (form) {
+          form.style.display = 'none';
+        }
+      }
+    }
+
+    // Elements
+    const openBtn = document.getElementById("openWidget");
+    const widget = document.getElementById("widget");
+    const closeBtn = document.getElementById("closeWidget");
+    const tabs = widget.querySelectorAll(".tab");
+    const pages = {
+      chat: document.getElementById("page-chat"),
+      contact: document.getElementById("page-contact"),
+      book: document.getElementById("page-book")
+    };
+
+    // Open from floating button → fullscreen
+    openBtn.addEventListener("click", () => {
+      widget.style.display = "flex";
+      document.body.style.overflow = "hidden";
+      
+      // Check if this is the first time or if user data exists
+      const username = getCookie('chatbot_username_new_');
+      const email = getCookie('chatbot_email_new_');
+      const hasUserData = username && email && username.trim() !== '' && email.trim() !== '';
+      const hasMessages = widget.querySelector(".chat-area .msg-row");
+      
+      if (!hasMessages) {
+        // Load previous messages from localStorage
+        const previousMessages = loadMessagesFromStorage();
+        if (previousMessages.length > 0) {
+          // Restore previous conversation
+          previousMessages.forEach(msg => {
+            addMsg(msg.text, msg.who, false); // Don't save again to avoid duplicates
+          });
+        } else {
+          // First time - show welcome message
+          setTimeout(() => addMsg(`Hey, nice to meet you. What’s your name and email?`, "bot"), 200);
+        }
+        
+        // Show registration form if no user data exists
+        if (!hasUserData) {
+          setTimeout(() => {
+            document.getElementById('userRegistrationForm').style.display = 'block';
+          }, 1000);
+        } else {
+          // Ensure form is hidden
+          document.getElementById('userRegistrationForm').style.display = 'none';
+        }
+      } else {
+        // Ensure form is hidden if messages already exist
+        document.getElementById('userRegistrationForm').style.display = 'none';
+      }
+    });
+
+    // Close (button + ESC)
+    const closeFullscreen = () => {
+      widget.style.display = "none";
+      document.body.style.overflow = "";
+    };
+    closeBtn.addEventListener("click", closeFullscreen);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeFullscreen(); });
+
+    // Tabs
+    tabs.forEach((t) => {
+      t.addEventListener("click", () => {
+        const page = t.dataset.page;
+        if (!page) return;
+        tabs.forEach((x) => x.setAttribute("aria-selected", String(x === t)));
+        Object.values(pages).forEach((p) => p.classList.remove("active"));
+        pages[page].classList.add("active");
+      });
+    });
+
+    // Chat mechanics
+    const messages = document.getElementById("messages");
+    const input = document.getElementById("input");
+    const send = document.getElementById("send");
+    const micBtn = document.getElementById("mic");
+
+    function addMsg(text, who = "user", saveToStorage = true) {
+      console.log('[v11][addMsg] who:', who, 'text:', text, 'saveToStorage:', saveToStorage);
+      const row = document.createElement("div");
+      row.className = "msg-row " + (who === "user" ? "user" : "bot");
+
+      if (who === "bot") {
+        // Bot bubble (avatar on the left, name above bubble) – unchanged
+        const av = document.createElement("div"); av.className = "avatar";
+        row.appendChild(av);
+        const col = document.createElement("div");
+        const name = document.createElement("div"); name.className = "who"; name.textContent = botName;
+        const bubble = document.createElement("div"); bubble.className = "bubble"; bubble.innerHTML = text;
+        col.appendChild(name); col.appendChild(bubble); row.appendChild(col);
+      } else {
+        const bubble = document.createElement("div"); bubble.className = "bubble"; bubble.textContent = text;
+        row.appendChild(bubble);
+      }
+
+      messages.appendChild(row);
+      messages.scrollTop = messages.scrollHeight;
+      
+      // Save message to localStorage
+      if (saveToStorage) {
+        saveMessageToStorage({ text, who });
+      }
+    }
+
+    // Typing indicator: avatar + who inside the SAME div (meta), as requested
+    function addTyping() {
+      const row = document.createElement("div");
+      row.className = "msg-row bot";
+      row.id = "typing";
+
+      const col = document.createElement("div");
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      const av = document.createElement("div"); av.className = "avatar";
+      const name = document.createElement("div"); name.className = "who"; name.textContent = botName;
+      meta.appendChild(av); meta.appendChild(name);
+
+      const tile = document.createElement("div");
+      tile.className = "typing";
+      tile.innerHTML = '<span class="dots"><i></i><i></i><i></i></span>';
+
+      col.appendChild(meta);
+      col.appendChild(tile);
+
+      row.appendChild(col);
+      messages.appendChild(row);
+      messages.scrollTop = messages.scrollHeight;
+    }
+    function removeTyping() {
+      const t = document.getElementById("typing");
+      if (t) t.remove();
+    }
+
+    // API call function
+    async function callChatAPI(message) {
+      console.log('[v11][callChatAPI] message:', message);
+      try {
+        // Get current user data from cookies
+          const currentUserEmail = getCookie('chatbot_email_new_') || userEmail;
+        const currentUserName = getCookie('chatbot_username_new_') || userName;
+        
+        const requestBody = {
+          assistant_name: botName,
+          message: message,
+          session_id: sessionId,
+          user_email: currentUserEmail,
+          user_name: currentUserName
+        };
+        
+        const url = `${API_CONFIG.baseUrl}?website_url=${encodeURIComponent(API_CONFIG.websiteUrl)}`;
+        
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody)
+        });
+        console.log('[v11][callChatAPI] API response status:', response.status);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('[v11][callChatAPI] API response data:', data);
+        return data;
+      } catch (error) {
+        console.error('[v11][callChatAPI] API call failed:', error);
+        throw error;
+      }
+    }
+
+    function handleSend() {
+      console.log('[v11][handleSend] called');
+      const text = (input.value || "").trim();
+      console.log('[v11][handleSend] text:', text);
+      if (!text) return;
+      
+      // Add user message
+      addMsg(text, "user");
+      input.value = "";
+      
+      // Reset textarea height
+      autoResizeTextarea(input);
+      
+      // Show typing indicator
+      addTyping();
+      
+      // Call API
+      callChatAPI(text)
+        .then(response => {
+          removeTyping();
+          // Assuming the API returns a response with a message field
+          const botResponse = response.message || response.response || response.text || "I'm sorry, I couldn't process your request.";
+          addMsg(botResponse, "bot");
+        })
+        .catch(error => {
+          removeTyping();
+          console.error('Error:', error);
+          addMsg("Sorry, I'm having trouble connecting right now. Please try again later.", "bot");
+        });
+    }
+    // Auto-resize textarea function
+    function autoResizeTextarea(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+    }
+    
+    // Add auto-resize functionality to the input textarea
+    input.addEventListener('input', () => {
+      autoResizeTextarea(input);
+    });
+    
+    send.addEventListener("click", handleSend);
+    input.addEventListener("keydown", (e) => { 
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSend(); 
+      }
+      // Shift+Enter allows for new lines in the input field
+    });
+
+    if (micBtn && window.SpeechRecognition || window.webkitSpeechRecognition) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.lang = "en-US";
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      let recognizing = false;
+      micBtn.addEventListener("click", () => {
+        if (recognizing) {
+          recognition.stop();
+          micBtn.classList.remove("active");
+          recognizing = false;
+          return;
+        }
+        recognition.start();
+        micBtn.classList.add("active");
+        recognizing = true;
+      });
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        input.value = transcript;
+        input.focus();
+        micBtn.classList.remove("active");
+        recognizing = false;
+        // Optionally, auto-send:
+        // handleSend();
+      };
+      recognition.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+        micBtn.classList.remove("active");
+        recognizing = false;
+      };
+      recognition.onend = () => {
+        micBtn.classList.remove("active");
+        recognizing = false;
+      };
+    } else if (micBtn) {
+      micBtn.disabled = true;
+      micBtn.title = "Speech recognition not supported in this browser.";
+    }
+
+    // User registration form handling
+    const saveUserInfo = document.getElementById("saveUserInfo");
+    if (saveUserInfo) {
+      saveUserInfo.addEventListener("click", () => {
+        const username = document.getElementById("regUsername").value.trim();
+        const email = document.getElementById("regEmail").value.trim();
+        
+        if (!username || !email) {
+          alert("Please fill in both name and email fields.");
+          return;
+        }
+        
+        // Save to cookies (with localStorage fallback)
+        const usernameSaved = setCookie('chatbot_username_new_', username);
+        const emailSaved = setCookie('chatbot_email_new_', email);
+        
+       
+       
+        // Verify data was saved
+        setTimeout(() => {
+            const savedUsername = getCookie('chatbot_username_new_');
+          const savedEmail = getCookie('chatbot_email_new_');
+      
+          
+          if (savedUsername === username && savedEmail === email) {
             
-                    
-                    if (savedUsername === username && savedEmail === email) {
-                      
-                    } else {
-                      
-                    }
-                  }, 100);
-                  
-                  // Hide registration form
-                  document.getElementById('userRegistrationForm').style.display = 'none';
-                  
-                  // Update global user variables
-                  window.userName = username;
-                  window.userEmail = email;
-                  
-                  // Show confirmation message
-                  addMsg(`Nice to meet you, ${username}. What are you curious about today?`, "bot");
-                });
-              }
-      
-              // Chips: both groups single-select with tick
-              function toggleChips(containerId, multi = false) {
-                const wrap = document.getElementById(containerId);
-                if (!wrap) return;
-                wrap.addEventListener("click", (e) => {
-                  const btn = e.target.closest(".chip");
-                  if (!btn || !wrap.contains(btn)) return;
-                  if (!multi) {
-                    wrap.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", "false"));
-                    btn.setAttribute("aria-pressed", "true");
-                  } else {
-                    const pressed = btn.getAttribute("aria-pressed") === "true";
-                    btn.setAttribute("aria-pressed", String(!pressed));
-                  }
-                });
-              }
-              toggleChips("topics", false);
-              toggleChips("budget", false);
-      
-              // Contact submit
-              const sendContact = document.getElementById("sendContact");
-              if (sendContact) {
-                sendContact.addEventListener("click", () => {
-                  const name = (document.getElementById("name").value || "").trim();
-                  const email = (document.getElementById("email").value || "").trim();
-                  const project = (document.getElementById("project").value || "").trim();
-                  const topicBtn = document.querySelector("#topics .chip[aria-pressed='true']");
-                  const budgetBtn = document.querySelector("#budget .chip[aria-pressed='true']");
-                  const topic = topicBtn ? topicBtn.dataset.value : "";
-                  const budget = budgetBtn ? budgetBtn.dataset.value : "";
-      
-                  if (!name || !email) { alert("Please add your name and email."); return; }
-      
-                  // Replace with your POST endpoint as needed
-                  console.log("Contact form:", { name, email, topic, project, budget });
-      
-                  // Confirmation in chat
-                  widget.querySelector('.tab[data-page="chat"]').click();
-                  addMsg(`Hi! I'm ${name}. ${project ? "About: " + project : ""}`, "user");
-                  addTyping();
-                  setTimeout(() => { removeTyping(); addMsg("Thanks for reaching out—our team will email you shortly. ✅", "bot"); }, 900);
-                });
-              }
-            };
-      
-            if (document.readyState === "loading") {
-              document.addEventListener("DOMContentLoaded", run, { once: true });
-            } else {
-              run();
-            }
-          })();
- 
+          } else {
+            
+          }
+        }, 100);
+        
+        // Hide registration form
+        document.getElementById('userRegistrationForm').style.display = 'none';
+        
+        // Update global user variables
+        window.userName = username;
+        window.userEmail = email;
+        
+        // Show confirmation message
+        addMsg(`Nice to meet you, ${username}. What are you curious about today?`, "bot");
+      });
+    }
+
+    // Chips: both groups single-select with tick
+    function toggleChips(containerId, multi = false) {
+      const wrap = document.getElementById(containerId);
+      if (!wrap) return;
+      wrap.addEventListener("click", (e) => {
+        const btn = e.target.closest(".chip");
+        if (!btn || !wrap.contains(btn)) return;
+        if (!multi) {
+          wrap.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", "false"));
+          btn.setAttribute("aria-pressed", "true");
+        } else {
+          const pressed = btn.getAttribute("aria-pressed") === "true";
+          btn.setAttribute("aria-pressed", String(!pressed));
+        }
+      });
+    }
+    toggleChips("topics", false);
+    toggleChips("budget", false);
+
+    // Contact submit
+    const sendContact = document.getElementById("sendContact");
+    if (sendContact) {
+      sendContact.addEventListener("click", () => {
+        const name = (document.getElementById("name").value || "").trim();
+        const email = (document.getElementById("email").value || "").trim();
+        const project = (document.getElementById("project").value || "").trim();
+        const topicBtn = document.querySelector("#topics .chip[aria-pressed='true']");
+        const budgetBtn = document.querySelector("#budget .chip[aria-pressed='true']");
+        const topic = topicBtn ? topicBtn.dataset.value : "";
+        const budget = budgetBtn ? budgetBtn.dataset.value : "";
+
+        if (!name || !email) { alert("Please add your name and email."); return; }
+
+        // Replace with your POST endpoint as needed
+        console.log('[v11] Contact form submitted:', { name, email, topic, project, budget });
+
+        // Confirmation in chat
+        widget.querySelector('.tab[data-page="chat"]').click();
+        addMsg(`Hi! I'm ${name}. ${project ? "About: " + project : ""}`, "user");
+        addTyping();
+        setTimeout(() => { removeTyping(); addMsg("Thanks for reaching out—our team will email you shortly. ✅", "bot"); }, 900);
+      });
+    }
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run, { once: true });
+  } else {
+    run();
+  }
+})();
