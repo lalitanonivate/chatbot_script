@@ -4,11 +4,303 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chatbot Widget</title>
+  <style>
+    /* Floating launcher */
+    #openWidget.launcher{
+      position: fixed; right: 20px; bottom: 20px; cursor: pointer; z-index: 999999999;
+      display: flex; flex-direction: row; min-height: 56px; padding: 16px;
+      justify-content: center; align-items: center; gap: 8px; transition: transform .15s ease;
+      background: #F7F4F2; border: 1px solid rgba(43, 43, 43, 0.15); color: #2B2B2B;
+      font-size: 18px; font-weight: 500; line-height: 130%;
+    }
+    #openWidget.launcher:hover { transform: scale(1.05) }
+    
+    /* FULLSCREEN widget */
+    #widget.widget{
+      position: fixed; inset: 0; width: 100vw; height: 100vh; background: var(--panel);
+      border-radius: 0; box-shadow: none; border: none; display: none; flex-direction: column;
+      overflow: hidden; z-index: 9999999999;
+    }
+    
+    /* Top bar */
+    #widget .topbar{
+      display: flex; align-items: center; justify-content: space-between; gap: 18px;
+      padding: 10px 14px 0; border-bottom: 1px solid var(--line); background: #F7F4F2; flex: 0 0 auto;
+    }
+    #widget .logo{ width: 105px; height: 50px; flex: 0 0 auto; margin-bottom: 10px; }
+    #widget .tabs{ display: flex; gap: 10px; align-items: center; overflow: auto; }
+    #widget .tab{
+      display: flex; flex-direction: row; gap: 8px; align-items: center; font-family: "Inclusive Sans", sans-serif;
+      appearance: none; border: 0; background: transparent; padding: 16px; border-radius: 0; color: #2B2B2B;
+      font-size: 18px; font-weight: 500; line-height: 130%; cursor: pointer; white-space: nowrap;
+    }
+    #widget .tab[aria-selected="true"]{ border-bottom: 1px solid #2B2B2B; }
+    #widget .close{
+      display: flex; min-height: 56px; padding: 16px; justify-content: center; align-items: center;
+      border: none; background-color: #2B2B2B; cursor: pointer; border-radius: 0;
+    }
+    
+    /* Pages */
+    #widget .page{ display: none; min-height: 0; }
+    #widget .page.active{ display: flex; flex-direction: column; flex: 1 1 auto; margin: 0 auto; width: 100%; }
+    
+    /* Chat page */
+    #widget .chat-header {
+      color: #000;
+      leading-trim: both;
+      text-edge: cap;
+      font-family: 'bugrinobold', sans-serif !important;
+      font-size: var(--Typography-font-2xl, 32px);
+      font-style: normal;
+      font-weight: 700;
+      line-height: 100%;
+      padding: 35px 20px 8px;
+      background: #F7F4F2;
+      max-width: 868px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    #widget .chat-area{ padding: 6px 16px 14px; overflow: auto; flex: 1; background: var(--bg-canvas); }
+    #widget .msg-row{ display: flex; align-items: flex-start; gap: 10px; margin: 32px 0 0 0; /* 32px space above each message */
+      max-width: 868px;
+      width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #widget .msg-row.user {
+      justify-content: flex-end;
+      margin-top: 24px; /* extra space above user message */
+      margin-bottom: 0;
+    }
+    #widget .msg-row.bot {
+      margin-top: 32px;
+      margin-bottom: 0;
+    }
+    #widget .avatar{
+      width: 70px; height: 70px; border-radius: 50%; background: url(https://cdn.prod.website-files.com/68beb349c6de55fecbd68bcc/68cd45fb639a53efc71bdee1_avatar_q.png) center/cover no-repeat;
+      border: 1px solid var(--line); flex: 0 0 auto;
+    }
+    #widget .who{ font-size: 22px; color: #2B2B2B; margin: 0 0 4px 0; font-weight: 500; }
+    #widget .bubble{ padding: 24px; border-radius: 12px; font-size: 22px; line-height: 1.45; max-width: 100%; }
+    #widget .bot .bubble{
+      background: var(--bot);
+      color: #000;
+      leading-trim: both;
+      text-edge: cap;
+      font-family: 'Inclusive Sans';
+      font-size: var(--Typography-font-l, 22px);
+      font-style: normal;
+      font-weight: 400;
+      line-height: 130%;
+    }
+    #widget .user{ justify-content: flex-end; }
+    #widget .user .bubble{ background: #B6D6A5; color: #000000; }
+    #widget .user .avatar{ display: none; }
+    
+    /* For typing layout: avatar + who in SAME row */
+    #widget .meta{ display: inline-flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    #widget .msg-row.bot{ align-items: flex-start; }
+    
+    /* Typing tile */
+    #widget .typing{
+      width: 48px; height: 30px; border-radius: 8px; background: var(--typing);
+      display: grid; place-items: center; box-shadow: 0 1px 2px rgba(0,0,0,.05);
+    }
+    #widget .dots{ display: inline-flex; gap: 4px; }
+    #widget .dots i{ width: 5px; height: 5px; border-radius: 50%; background: #2a6b61; opacity: .5; animation: b 1.2s infinite; display: block; }
+    #widget .dots i:nth-child(2){ animation-delay: .15s }
+    #widget .dots i:nth-child(3){ animation-delay: .3s }
+    @keyframes b{ 0%,80%,100%{ transform: translateY(0); opacity: .45 } 40%{ transform: translateY(-3px); opacity: .9 } }
+    
+    /* Composer */
+    #widget .composer{
+      display: flex; gap: 10px; align-items: center; border: 1px solid rgba(43, 43, 43, 0.15); background: #F7F4F2;
+      padding: 20px; border-radius: 16px; border-bottom-right-radius: 0; margin-bottom: 30px;
+       max-width: 868px; width:100%; margin:0 auto;
+    }
+    #widget .input{
+      font-family: "Inclusive Sans", sans-serif; flex: 1; border: none; background: #F7F4F2; border-radius: 10px;
+      padding: 12px 12px; outline: none; font-size: 22px; color: rgba(43,43,43,0.50);
+      resize: none; min-height: 24px; max-height: 120px; overflow-y: auto;
+    }
+    #widget .send{ padding: 16px 24px; border: 1px solid #2B2B2B; background: #2B2B2B; color: var(--send-ink); display: grid; place-items: center; cursor: pointer; }
+    #widget .send svg{ width: 18px; height: 18px; fill: #fff }
+    
+    /* Contact page */
+    #widget .contact-wrap{ padding: 18px 16px; overflow: auto; background: var(--bg-canvas); flex: 1; }
+    #widget .h1{ font-weight: 700; font-size: 32px; text-align: center; margin: 0; }
+    #widget .sub{ text-align: center; color: #000000; font-size: 20px; margin-bottom: 50px; }
+    #widget .field{ margin: 0 0 24px }
+    #widget .field label{ display: block; font-size: 16px; color: #2B2B2B; line-height: 130%}
+    #widget .field.inline {display: flex; flex-direction: row; align-items: center; gap: 12px}
+    #widget .field.inline input {flex: 1 1 0;}
+    #widget .field input, #widget .field textarea{
+      width: 100%; outline: none; box-sizing: border-box; border: none; border-radius: 0px; padding: 12px 20px; background: #E3E0DE; font: 400 16px/1.2 var(--font);
+    }
+    
+    /* Chips (single-select with CSS checkmark) */
+    #widget .chips{ display: flex; gap: 10px; flex-wrap: wrap; }
+    #widget .chip{
+      border: 1px solid rgba(43, 43, 43, 0.15); background: #F7F4F2; padding: 12px 20px; font: 600 18px/1 var(--font);
+      border-radius: 0px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+      position: relative; padding-left: 36px; color: #2B2B2B
+    }
+    #widget .chip svg{ display: none !important; }
+    #widget .chip::before{
+      content: ""; position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+      width: 16px; height: 16px; border: 1px solid var(--line); border-radius: 4px; background: #fff; opacity: 0; transition: all .15s ease;
+    }
+    #widget .chip::after{
+      content: ""; position: absolute; left: 14px; top: 50%;
+      width: 12px; height: 6px; border: 2px solid #2B2B2B; border-top: 0; border-right: 0; transform: translateY(-55%) rotate(-45deg);
+      opacity: 0; transition: opacity .15s ease;
+    }
+    #widget .chip[aria-pressed="true"]{ background: rgba(43, 43, 43, 0.15); }
+    #widget .chip[aria-pressed="true"]::after{ opacity: 1; color: #2B2B2B }
+    
+    #widget .cta{
+      width: 100%; border: none; background: #111; color: #fff; padding: 12px 20px; border-radius: 0px;
+      font: 600 16px/1 var(--font); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    
+    
+    #widget .escape-close{
+      display: flex; justify-content: center; align-items: center; gap: 16px; color: #2B2B2B; font-weight: 800; line-height: 130%;
+      letter-spacing: 1.82px; text-transform: uppercase; margin-bottom: 10px;
+    }
+    
+    /* User Registration Form */
+    #widget .user-registration-form{
+      padding: 32px 24px;
+      background: var(--bg-canvas);
+      border-top: 1px solid var(--line);
+      border-radius: 16px;
+      max-width: 868px;
+      width: 100%;
+      margin: 32px auto 0 auto;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+    }
+    #widget .registration-content h3{
+      margin: 0 0 20px 0; font-size: 24px; font-weight: 600; color: #2B2B2B; text-align: center;
+    }
+    #widget .registration-content .field{
+      margin-bottom: 20px;
+    }
+    #widget .registration-content .field label{
+      display: block; margin-bottom: 8px; font-size: 16px; color: #2B2B2B; font-weight: 500;
+    }
+    #widget .registration-content .field input{
+      width: 100%;
+      padding: 16px 18px;
+      border: 1.5px solid #E3E0DE;
+      border-radius: 10px;
+      background: #fff;
+      font-size: 18px;
+      font-family: "Inclusive Sans", sans-serif;
+      transition: border 0.2s, box-shadow 0.2s;
+      box-sizing: border-box;
+    }
+    #widget .registration-content .field input:focus {
+      border-color: #2B2B2B;
+      box-shadow: 0 0 0 2px #C7E5E0;
+      outline: none;
+    }
+    #widget .registration-content .cta{
+      width: 100%;
+      margin-top: 12px;
+      padding: 16px 0;
+      background: #111;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: 600;
+      font-family: "Inclusive Sans", sans-serif;
+      cursor: pointer;
+      transition: background 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    #widget .registration-content .cta:hover {
+      background: #333;
+    }
+    
+    @media (max-width:640px){ #widget .composer{ position: sticky; bottom: 0 } }
+  </style>
 </head>
 <body>
   <!-- The chatbot UI will be injected by the script -->
   <script>
-    (() => {
+    // Inject Bugrino font faces dynamically
+    (function() {
+      const fontCSS = `
+        @font-face {
+          font-family: 'bugrinoblack';
+          src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-black-webfont.woff2') format('woff2'),
+               url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-black-webfont.woff') format('woff');
+          font-weight: normal;
+          font-style: normal;   
+        }
+        @font-face {
+          font-family: 'bugrinobold';
+          src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-bold-webfont.woff2') format('woff2'),
+               url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-bold-webfont.woff') format('woff');
+          font-weight: normal;
+          font-style: normal;
+        }
+        @font-face {
+          font-family: 'bugrinofine';
+          src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-fine-webfont.woff2') format('woff2'),
+               url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-fine-webfont.woff') format('woff');
+          font-weight: normal;
+          font-style: normal;
+        }
+        @font-face {
+          font-family: 'bugrinoheavy';
+          src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-heavy-webfont.woff2') format('woff2'),
+               url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-heavy-webfont.woff') format('woff');
+          font-weight: normal;
+          font-style: normal;
+        }
+        @font-face {
+          font-family: 'bugrinolight';
+          src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-light-webfont.woff2') format('woff2'),
+               url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-light-webfont.woff') format('woff');
+          font-weight: normal;
+          font-style: normal;
+        }
+        @font-face {
+          font-family: 'bugrinomedium';
+          src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-medium-webfont.woff2') format('woff2'),
+               url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-medium-webfont.woff') format('woff');
+          font-weight: normal;
+          font-style: normal;
+        }
+        @font-face {
+          font-family: 'bugrinoregular';
+          src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-regular-webfont.woff2') format('woff2'),
+               url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-regular-webfont.woff') format('woff');
+          font-weight: normal;
+          font-style: normal;
+        }
+        @font-face {
+          font-family: 'bugrinosemibold';
+          src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-semibold-webfont.woff2') format('woff2'),
+               url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-semibold-webfont.woff') format('woff');
+          font-weight: normal;
+          font-style: normal;
+        }
+        @font-face {
+          font-family: 'bugrinothin';
+          src: url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-thin-webfont.woff2') format('woff2'),
+               url('https://cdn.jsdelivr.net/gh/lalitanonivate/chatbot_script@main/font/bugrino-thin-webfont.woff') format('woff');
+          font-weight: normal;
+          font-style: normal;
+        }
+      `;
+      const style = document.createElement('style');
+      style.textContent = fontCSS;
+      document.head.appendChild(style);
+    })();
             // --- 0) Helpers -----------------------------------------------------------
             const once = (id, node) => {
               if (document.getElementById(id)) return;
@@ -99,7 +391,7 @@
         color: #000;
         leading-trim: both;
         text-edge: cap;
-        font-family: 'bugrinomedium', sans-serif;
+        font-family: 'bugrinobold', sans-serif !important;
         font-size: var(--Typography-font-2xl, 32px);
         font-style: normal;
         font-weight: 700;
@@ -111,14 +403,38 @@
         margin: 0 auto;
       }
       #widget .chat-area{ padding: 6px 16px 14px; overflow: auto; flex: 1; background: var(--bg-canvas); }
-      #widget .msg-row{ display: flex; align-items: flex-start; gap: 10px; margin: 12px 0; max-width: 868px; width:100%; margin:0 auto; }
+      #widget .msg-row{ display: flex; align-items: flex-start; gap: 10px; margin: 32px 0 0 0; /* 32px space above each message */
+        max-width: 868px;
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      #widget .msg-row.user {
+        justify-content: flex-end;
+        margin-top: 24px; /* extra space above user message */
+        margin-bottom: 0;
+      }
+      #widget .msg-row.bot {
+        margin-top: 32px;
+        margin-bottom: 0;
+      }
       #widget .avatar{
         width: 70px; height: 70px; border-radius: 50%; background: url(https://cdn.prod.website-files.com/68beb349c6de55fecbd68bcc/68cd45fb639a53efc71bdee1_avatar_q.png) center/cover no-repeat;
         border: 1px solid var(--line); flex: 0 0 auto;
       }
       #widget .who{ font-size: 22px; color: #2B2B2B; margin: 0 0 4px 0; font-weight: 500; }
       #widget .bubble{ padding: 24px; border-radius: 12px; font-size: 22px; line-height: 1.45; max-width: 100%; }
-      #widget .bot .bubble{ background: var(--bot); color: #0f3732; }
+      #widget .bot .bubble{
+        background: var(--bot);
+        color: #000;
+        leading-trim: both;
+        text-edge: cap;
+        font-family: 'Inclusive Sans';
+        font-size: var(--Typography-font-l, 22px);
+        font-style: normal;
+        font-weight: 400;
+        line-height: 130%;
+      }
       #widget .user{ justify-content: flex-end; }
       #widget .user .bubble{ background: #B6D6A5; color: #000000; }
       #widget .user .avatar{ display: none; }
@@ -196,12 +512,12 @@
       }
       
       /* User Registration Form */
-      #widget .user-registration-form {
+      #widget .user-registration-form{
         padding: 32px 24px;
         background: var(--bg-canvas);
         border-top: 1px solid var(--line);
         border-radius: 16px;
-        max-width: 868px;   /* Match chat area */
+        max-width: 868px;
         width: 100%;
         margin: 32px auto 0 auto;
         box-shadow: 0 2px 16px rgba(0,0,0,0.04);
@@ -210,20 +526,44 @@
         margin: 0 0 20px 0; font-size: 24px; font-weight: 600; color: #2B2B2B; text-align: center;
       }
       #widget .registration-content .field{
-        margin-bottom: 16px;
+        margin-bottom: 20px;
       }
       #widget .registration-content .field label{
         display: block; margin-bottom: 8px; font-size: 16px; color: #2B2B2B; font-weight: 500;
       }
       #widget .registration-content .field input{
-        width: 100%; padding: 12px 16px; border: 1px solid var(--line); border-radius: 8px;
-        font-size: 16px; background: #fff; outline: none; box-sizing: border-box;
+        width: 100%;
+        padding: 16px 18px;
+        border: 1.5px solid #E3E0DE;
+        border-radius: 10px;
+        background: #fff;
+        font-size: 18px;
+        font-family: "Inclusive Sans", sans-serif;
+        transition: border 0.2s, box-shadow 0.2s;
+        box-sizing: border-box;
       }
-      #widget .registration-content .field input:focus{
+      #widget .registration-content .field input:focus {
         border-color: #2B2B2B;
+        box-shadow: 0 0 0 2px #C7E5E0;
+        outline: none;
       }
       #widget .registration-content .cta{
-        width: 100%; margin-top: 8px;
+        width: 100%;
+        margin-top: 12px;
+        padding: 16px 0;
+        background: #111;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: 600;
+        font-family: "Inclusive Sans", sans-serif;
+        cursor: pointer;
+        transition: background 0.2s;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      }
+      #widget .registration-content .cta:hover {
+        background: #333;
       }
       
       @media (max-width:640px){ #widget .composer{ position: sticky; bottom: 0 } }
@@ -276,7 +616,7 @@
             </button>
             <button class="tab" data-page="book" aria-selected="false">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none">
-                <path d="M11.018 14v-2h2v2h-2Zm-4 0v-2h2v2h-2Zm8 0v-2h2v2h-2Zm-4 4v-2h2v2h-2Zm-4 0v-2h2v2h-2Zm8 0v-2h2v2h-2ZM3.018 22V4h2c.553 0 1-.448 1-1V2h2v1c0 .552.448 1 1 1h6c.553 0 1-.448 1-1V2h2v1c0 .552.448 1 1 1h2V22H3.018Zm2-3c0 .552.448 1 1 1H18.018c.553 0 1-.448 1-1V11a1 1 0 0 0-1-1H6.018a1 1 0 0 0-1 1v8Zm0-12c0 .552.448 1 1 1H18.018c.553 0 1-.448 1-1 0-.552-.447-1-1-1H6.018c-.552 0-1 .448-1 1Z" fill="#2B2B2B"/>
+                <path d="M11.018 14v-2h2v2h-2Zm-4 0v-2h2v2h-2Zm8 0v-2h2v2h-2Zm-4 4v-2h2v2h-2Zm-4 0v-2h2v2h-2Zm8 0v-2h2v2h-2ZM3.018 22V4h2c.553 0 1-.448 1-1V2h2v1c0 .552.448 1 1 1h6c.553 0 1-.448 1-1V2h2v1c0 .552.448 1 1 1h2V22H3.018Zm2-3c0 .552.448 1 1 1H18.018c.553 0 1-.448 1-1 0-.552-.447-1-1-1H6.018c-.552 0-1 .448-1 1Z" fill="#2B2B2B"/>
               </svg> Book A Call
             </button>
           </div>
