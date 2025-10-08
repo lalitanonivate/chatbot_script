@@ -1,4 +1,5 @@
- (() => {
+
+    (() => {
             // --- 0) Helpers -----------------------------------------------------------
             const once = (id, node) => {
               if (document.getElementById(id)) return;
@@ -197,26 +198,57 @@
       
       /* User Registration Form */
       #widget .user-registration-form{
-        padding: 20px; background: var(--bg-canvas); border-top: 1px solid var(--line);
+        padding: 32px 24px;
+        background: var(--bg-canvas);
+        border-top: 1px solid var(--line);
+        border-radius: 16px;
+        max-width: 868px;
+        width: 100%;
+        margin: 32px auto 0 auto;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.04);
       }
       #widget .registration-content h3{
         margin: 0 0 20px 0; font-size: 24px; font-weight: 600; color: #2B2B2B; text-align: center;
       }
       #widget .registration-content .field{
-        margin-bottom: 16px;
+        margin-bottom: 20px;
       }
       #widget .registration-content .field label{
         display: block; margin-bottom: 8px; font-size: 16px; color: #2B2B2B; font-weight: 500;
       }
       #widget .registration-content .field input{
-        width: 100%; padding: 12px 16px; border: 1px solid var(--line); border-radius: 8px;
-        font-size: 16px; background: #fff; outline: none; box-sizing: border-box;
+        width: 100%;
+        padding: 16px 18px;
+        border: 1.5px solid #E3E0DE;
+        border-radius: 10px;
+        background: #fff;
+        font-size: 18px;
+        font-family: "Inclusive Sans", sans-serif;
+        transition: border 0.2s, box-shadow 0.2s;
+        box-sizing: border-box;
       }
-      #widget .registration-content .field input:focus{
+      #widget .registration-content .field input:focus {
         border-color: #2B2B2B;
+        box-shadow: 0 0 0 2px #C7E5E0;
+        outline: none;
       }
       #widget .registration-content .cta{
-        width: 100%; margin-top: 8px;
+        width: 100%;
+        margin-top: 12px;
+        padding: 16px 0;
+        background: #111;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: 600;
+        font-family: "Inclusive Sans", sans-serif;
+        cursor: pointer;
+        transition: background 0.2s;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      }
+      #widget .registration-content .cta:hover {
+        background: #333;
       }
       
       @media (max-width:640px){ #widget .composer{ position: sticky; bottom: 0 } }
