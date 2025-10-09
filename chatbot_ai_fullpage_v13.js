@@ -1,4 +1,5 @@
 
+
     // Inject Bugrino font faces dynamically
     (function() {
       const fontCSS = `
@@ -336,6 +337,11 @@
       }
       
       @media (max-width:640px){ #widget .composer{ position: sticky; bottom: 0 } }
+      /* Custom user request: paragraph margin inside chat */
+      #widget .chat-area div p {
+        margin-top: 10px !important;
+        
+      }
       `;
               const style = document.createElement("style");
               style.textContent = css;
@@ -357,7 +363,7 @@
       </button>`;
       
               const widgetHTML = `
-      <section class="widget" id="widget" role="dialog" aria-modal="true" aria-label="Chat and contact">
+      <section class="widget" id="widget" role="dialog" aria-modal="true" aria-label="Chat">
         <div class="topbar">
           <div class="logo" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="105" height="51" viewBox="0 0 105 51" fill="none">
         <path d="M8.8578 50C2.8971 50 0 46.2371 0 41.2421C0 36.2471 2.8971 32.6 8.8578 32.6H11.3542L11.4874 32.4668V26.8332L11.6206 26.7H17.0152L17.1484 26.8332V49.8668L17.0152 50H8.8578ZM8.8578 44.4056C10.4562 44.4056 11.8548 43.2734 11.8548 41.2754C11.8548 39.2774 10.4562 38.1452 8.8578 38.1452C7.2594 38.1452 5.8608 39.2774 5.8608 41.2754C5.8608 43.2734 7.2594 44.4056 8.8578 44.4056Z" fill="#2B2B2B"></path>
@@ -377,16 +383,6 @@
                 <path d="M15 6H6a1 1 0 0 0-1 1v10c0 .412.47.647.8.4L7.667 16H18a1 1 0 0 0 1-1v-5h2v8H8.333L3 22V4h12v2Z" fill="#2B2B2B"/>
                 <path d="M21 6.142v.714C19.677 7.047 19.038 7.737 18.856 9h-.713c-.19-1.323-.88-1.962-2.143-2.143v-.714c1.323-.187 1.961-.879 2.143-2.141h.713c.19 1.322.879 1.964 2.143 2.142Z" fill="#2B2B2B"/>
               </svg> AI Assist
-            </button>
-            <button class="tab" data-page="contact" aria-selected="false">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M22 21H2V3h20v18ZM12 13 5.555 8.703C4.89 8.26 4 8.736 4 9.535V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9.535c0-.798-.89-1.274-1.555-.832L12 13Zm0-2 7.858-5.402A.327.327 0 0 0 20 5.328C20 5.147 19.853 5 19.672 5H4.328C4.147 5 4 5.147 4 5.328c0 .108.053.209.142.27L12 11Z" fill="#2B2B2B"/>
-              </svg> Get In Touch
-            </button>
-            <button class="tab" data-page="book" aria-selected="false">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none">
-                <path d="M11.018 14v-2h2v2h-2Zm-4 0v-2h2v2h-2Zm8 0v-2h2v2h-2Zm-4 4v-2h2v2h-2Zm-4 0v-2h2v2h-2Zm8 0v-2h2v2h-2ZM3.018 22V4h2c.553 0 1-.448 1-1V2h2v1c0 .552.448 1 1 1h6c.553 0 1-.448 1-1V2h2v1c0 .552.448 1 1 1h2V22H3.018Zm2-3c0 .552.448 1 1 1H18.018c.553 0 1-.448 1-1 0-.552-.447-1-1-1H6.018c-.552 0-1 .448-1 1Z" fill="#2B2B2B"/>
-              </svg> Book A Call
             </button>
           </div>
           <span class="escape-close">ESC
@@ -687,38 +683,31 @@
               openBtn.addEventListener("click", () => {
                 widget.style.display = "flex";
                 document.body.style.overflow = "hidden";
-                
+
                 // Check if this is the first time or if user data exists
                 const username = getCookie('chatbot_username_new_');
                 const email = getCookie('chatbot_email_new_');
                 const hasUserData = username && email && username.trim() !== '' && email.trim() !== '';
+                const regForm = document.getElementById('userRegistrationForm');
+
+                // Show form if user data is missing, even if there are chat messages
+                if (!hasUserData && regForm) {
+                  regForm.style.display = 'block';
+                } else if (hasUserData && regForm) {
+                  regForm.style.display = 'none';
+                }
+
+                // Chat restoration/message and welcome logic stays the same
                 const hasMessages = widget.querySelector(".chat-area .msg-row");
-                
                 if (!hasMessages) {
-                  // Load previous messages from localStorage
                   const previousMessages = loadMessagesFromStorage();
                   if (previousMessages.length > 0) {
-                    // Restore previous conversation
                     previousMessages.forEach(msg => {
-                      addMsg(msg.text, msg.who, false); // Don't save again to avoid duplicates
+                      addMsg(msg.text, msg.who, false);
                     });
                   } else {
-                    // First time - show welcome message
                     setTimeout(() => addMsg(`Hey, nice to meet you. What’s your name and email?`, "bot"), 200);
                   }
-                  
-                  // Show registration form if no user data exists
-                  if (!hasUserData) {
-                    setTimeout(() => {
-                      document.getElementById('userRegistrationForm').style.display = 'block';
-                    }, 1000);
-                  } else {
-                    // Ensure form is hidden
-                    document.getElementById('userRegistrationForm').style.display = 'none';
-                  }
-                } else {
-                  // Ensure form is hidden if messages already exist
-                  document.getElementById('userRegistrationForm').style.display = 'none';
                 }
               });
       
