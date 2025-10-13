@@ -1,6 +1,5 @@
 
 
-    // Inject Bugrino font faces dynamically
     (function() {
       const fontCSS = `
         @font-face {
@@ -71,32 +70,30 @@
       style.textContent = fontCSS;
       document.head.appendChild(style);
     })();
-            // --- 0) Helpers -----------------------------------------------------------
-            const once = (id, node) => {
-              if (document.getElementById(id)) return;
-              node.id = id;
-              document.head.appendChild(node);
-            };
-      
-            const run = () => {
-              // --- 1) Fonts -----------------------------------------------------------
-              const pre1 = document.createElement("link");
-              pre1.rel = "preconnect"; pre1.href = "https://fonts.googleapis.com";
-              const pre2 = document.createElement("link");
-              pre2.rel = "preconnect"; pre2.href = "https://fonts.gstatic.com"; pre2.crossOrigin = "anonymous";
-              const gfont1 = document.createElement("link");
-              gfont1.rel = "stylesheet";
-              gfont1.href = "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap";
-              const gfont2 = document.createElement("link");
-              gfont2.rel = "stylesheet";
-              gfont2.href = "https://fonts.googleapis.com/css2?family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap";
-              once("bdw-pre-gfonts-1", pre1);
-              once("bdw-pre-gfonts-2", pre2);
-              once("bdw-font-poppins", gfont1);
-              once("bdw-font-inclusive", gfont2);
-      
-              // --- 2) Styles ----------------------------------------------------------
-              const css = `
+           
+           const once = (id, node) => {
+             if (document.getElementById(id)) return;
+             node.id = id;
+             document.head.appendChild(node);
+           };
+     
+           const run = () => {
+                 const pre1 = document.createElement("link");
+                 pre1.rel = "preconnect"; pre1.href = "https://fonts.googleapis.com";
+                 const pre2 = document.createElement("link");
+                 pre2.rel = "preconnect"; pre2.href = "https://fonts.gstatic.com"; pre2.crossOrigin = "anonymous";
+                 const gfont1 = document.createElement("link");
+                 gfont1.rel = "stylesheet";
+                 gfont1.href = "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap";
+                 const gfont2 = document.createElement("link");
+                 gfont2.rel = "stylesheet";
+                 gfont2.href = "https://fonts.googleapis.com/css2?family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap";
+                 once("bdw-pre-gfonts-1", pre1);
+                 once("bdw-pre-gfonts-2", pre2);
+                 once("bdw-font-poppins", gfont1);
+                 once("bdw-font-inclusive", gfont2);
+     
+                 const css = `
       :root {
         --font: "Inclusive Sans", sans-serif;
         --bg-canvas: #F7F4F2;
@@ -116,8 +113,7 @@
       }
       html, body { height: 100% }
       body { margin: 0; font-family: var(--font); color: var(--ink) }
-      
-      /* Floating launcher */
+     
       #openWidget.launcher{
         position: fixed; right: 20px; bottom: 20px; cursor: pointer; z-index: 999999999;
         display: flex; flex-direction: row; min-height: 56px; padding: 16px;
@@ -126,15 +122,13 @@
         font-size: 18px; font-weight: 500; line-height: 130%;
       }
       #openWidget.launcher:hover { transform: scale(1.05) }
-      
-      /* FULLSCREEN widget */
+     
       #widget.widget{
         position: fixed; inset: 0; width: 100vw; height: 100vh; background: var(--panel);
         border-radius: 0; box-shadow: none; border: none; display: none; flex-direction: column;
         overflow: hidden; z-index: 9999999999;
       }
-      
-      /* Top bar */
+     
       #widget .topbar{
         display: flex; align-items: center; justify-content: space-between; gap: 18px;
         padding: 10px 14px 0; border-bottom: 1px solid var(--line); background: #F7F4F2; flex: 0 0 auto;
@@ -151,12 +145,10 @@
         display: flex; min-height: 56px; padding: 16px; justify-content: center; align-items: center;
         border: none; background-color: #2B2B2B; cursor: pointer; border-radius: 0;
       }
-      
-      /* Pages */
+     
       #widget .page{ display: none; min-height: 0; }
       #widget .page.active{ display: flex; flex-direction: column; flex: 1 1 auto; margin: 0 auto; width: 100%; }
-      
-      /* Chat page */
+     
       #widget .chat-header {
         color: #000;
         leading-trim: both;
@@ -173,7 +165,7 @@
         margin: 0 auto;
       }
       #widget .chat-area{ padding: 6px 16px 14px; overflow: auto; flex: 1; background: var(--bg-canvas); }
-      #widget .msg-row{ display: flex; align-items: flex-start; gap: 10px; margin: 32px 0 0 0; /* 32px space above each message */
+      #widget .msg-row{ display: flex; align-items: flex-start; gap: 10px; margin: 32px 0 0 0; 
         max-width: 868px;
         width: 100%;
         margin-left: auto;
@@ -181,7 +173,7 @@
       }
       #widget .msg-row.user {
         justify-content: flex-end;
-        margin-top: 24px; /* extra space above user message */
+        margin-top: 24px; 
         margin-bottom: 0;
       }
       #widget .msg-row.bot {
@@ -208,12 +200,10 @@
       #widget .user{ justify-content: flex-end; }
       #widget .user .bubble{ background: #B6D6A5; color: #000000; }
       #widget .user .avatar{ display: none; }
-      
-      /* For typing layout: avatar + who in SAME row */
+     
       #widget .meta{ display: inline-flex; align-items: center; gap: 10px; margin-bottom: 8px; }
       #widget .msg-row.bot{ align-items: flex-start; }
-      
-      /* Typing tile */
+     
       #widget .typing{
         width: 48px; height: 30px; border-radius: 8px; background: var(--typing);
         display: grid; place-items: center; box-shadow: 0 1px 2px rgba(0,0,0,.05);
@@ -223,8 +213,7 @@
       #widget .dots i:nth-child(2){ animation-delay: .15s }
       #widget .dots i:nth-child(3){ animation-delay: .3s }
       @keyframes b{ 0%,80%,100%{ transform: translateY(0); opacity: .45 } 40%{ transform: translateY(-3px); opacity: .9 } }
-      
-      /* Composer */
+     
       #widget .composer{
         display: flex; gap: 10px; align-items: center; border: 1px solid rgba(43, 43, 43, 0.15); background: #F7F4F2;
         padding: 20px; border-radius: 16px; border-bottom-right-radius: 0; margin-bottom: 30px;
@@ -237,8 +226,7 @@
       }
       #widget .send{ padding: 16px 24px; border: 1px solid #2B2B2B; background: #2B2B2B; color: var(--send-ink); display: grid; place-items: center; cursor: pointer; }
       #widget .send svg{ width: 18px; height: 18px; fill: #fff }
-      
-      /* Contact page */
+     
       #widget .contact-wrap{ padding: 18px 16px; overflow: auto; background: var(--bg-canvas); flex: 1; }
       #widget .h1{ font-weight: 700; font-size: 32px; text-align: center; margin: 0; }
       #widget .sub{ text-align: center; color: #000000; font-size: 20px; margin-bottom: 50px; }
@@ -249,8 +237,7 @@
       #widget .field input, #widget .field textarea{
         width: 100%; outline: none; box-sizing: border-box; border: none; border-radius: 0px; padding: 12px 20px; background: #E3E0DE; font: 400 16px/1.2 var(--font);
       }
-      
-      /* Chips (single-select with CSS checkmark) */
+     
       #widget .chips{ display: flex; gap: 10px; flex-wrap: wrap; }
       #widget .chip{
         border: 1px solid rgba(43, 43, 43, 0.15); background: #F7F4F2; padding: 12px 20px; font: 600 18px/1 var(--font);
@@ -269,19 +256,18 @@
       }
       #widget .chip[aria-pressed="true"]{ background: rgba(43, 43, 43, 0.15); }
       #widget .chip[aria-pressed="true"]::after{ opacity: 1; color: #2B2B2B }
-      
+     
       #widget .cta{
         width: 100%; border: none; background: #111; color: #fff; padding: 12px 20px; border-radius: 0px;
         font: 600 16px/1 var(--font); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
       }
-      
-      
+     
+     
       #widget .escape-close{
         display: flex; justify-content: center; align-items: center; gap: 16px; color: #2B2B2B; font-weight: 800; line-height: 130%;
         letter-spacing: 1.82px; text-transform: uppercase; margin-bottom: 10px;
       }
-      
-      /* User Registration Form */
+     
       #widget .user-registration-form{
         padding: 32px 24px;
         background: var(--bg-canvas);
@@ -335,17 +321,16 @@
       #widget .registration-content .cta:hover {
         background: #333;
       }
-      
+     
       @media (max-width:640px){ #widget .composer{ position: sticky; bottom: 0 } }
-      /* Custom user request: paragraph margin inside chat */
       #widget .chat-area div p {
         margin-top: 10px !important;
         
       }
       `;
-              const style = document.createElement("style");
-              style.textContent = css;
-              once("bdw-style", style);
+                 const style = document.createElement("style");
+                 style.textContent = css;
+                 once("bdw-style", style);
       
               // --- 3) DOM: Launcher + Widget -----------------------------------------
               const wrap = document.createElement("div");
