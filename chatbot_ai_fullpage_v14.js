@@ -72,12 +72,14 @@
       document.head.appendChild(style);
     })();
             // --- 0) Helpers -----------------------------------------------------------
+            // Helper to append elements to head only once by id
             const once = (id, node) => {
               if (document.getElementById(id)) return;
               node.id = id;
               document.head.appendChild(node);
             };
       
+            // Entrypoint: run when DOM is ready, builds fonts, styles, HTML, and sets up event handlers
             const run = () => {
               // --- 1) Fonts -----------------------------------------------------------
               const pre1 = document.createElement("link");
@@ -536,22 +538,22 @@
                 websiteUrl: window.location.origin || ""
               };
       
-              // Generate or retrieve session ID
+              // Create or get a unique session ID cookie and localStorage
               function getOrCreateSessionId() {
                 let sessionId = getCookie('chatbot_sessionId');
                 if (!sessionId) {
                   sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
                   setCookie('chatbot_sessionId', sessionId);
-                  console.log('Created new session ID:', sessionId);
+                  console.log('[getOrCreateSessionId] Created new session ID:', sessionId); // LOG
                 } else {
-                  console.log('Retrieved existing session ID:', sessionId);
+                  console.log('[getOrCreateSessionId] Retrieved existing session ID:', sessionId); // LOG
                 }
                 return sessionId;
               }
               
               const sessionId = getOrCreateSessionId();
               
-              // Cookie and localStorage management with fallback
+              // Try to save a cookie, falls back to localStorage on error
               function setCookie(name, value, days = 365) {
                 try {
                   const expires = new Date();
@@ -560,15 +562,16 @@
                   
                   // Also save to localStorage as backup
                   localStorage.setItem(name, value);
-                  
+                  console.log('[setCookie] Set cookie and localStorage:', name, value); // LOG
                   return true;
                 } catch (error) {
-                  console.log(`Cookie failed, using localStorage: ${name}=${value}`);
+                  console.log('[setCookie] Cookie failed, using localStorage only:', name, value, error); // LOG
                   localStorage.setItem(name, value);
                   return false;
                 }
               }
               
+              // Reads cookie with localStorage fallback
               function getCookie(name) {
                 try {
                   // First try to get from cookies
@@ -591,7 +594,7 @@
                   
                   return null;
                 } catch (error) {
-                  console.log(`Cookie read failed, trying localStorage: ${name}`);
+                  console.log('[getCookie] Cookie read failed, fallback to localStorage:', name, error); // LOG
                   const localValue = localStorage.getItem(name);
                   if (localValue) {
                     return localValue;
@@ -600,7 +603,9 @@
                 }
               }
               
+              // Adds a chat message to localStorage for session
               function saveMessageToStorage(message) {
+                console.log('[saveMessageToStorage] Saving:', message); // LOG
                 const storageKey = `chatbot_messages_new_${sessionId}`;
                 const messages = JSON.parse(localStorage.getItem(storageKey) || '[]');
                 messages.push({
@@ -612,17 +617,22 @@
                 localStorage.setItem(storageKey, JSON.stringify(messages));
               }
               
+              // Loads all chat messages from localStorage for this session
               function loadMessagesFromStorage() {
                 const storageKey = `chatbot_messages_new_${sessionId}`;
                 const messages = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                console.log('[loadMessagesFromStorage] Loaded messages:', messages); // LOG
                 return messages;
               }
               
+              // Clears chat history for the session
               function clearChatStorage() {
                 const storageKey = `chatbot_messages_new_${sessionId}`;
                 localStorage.removeItem(storageKey);
+                console.log('[clearChatStorage] Removed messages for', storageKey); // LOG
               }
               
+              // Returns all session keys using localStorage
               function getAllSessions() {
                 const sessions = [];
                 for (let i = 0; i < localStorage.length; i++) {
@@ -632,35 +642,32 @@
                     sessions.push(sessionId);
                   }
                 }
+                console.log('[getAllSessions] Found:', sessions); // LOG
                 return sessions;
               }
               
+              // Clear user data and session cookies/localStorage
               function clearUserData() {
-                // Clear from both cookies and localStorage
                 try {
                   document.cookie = 'chatbot_username_new_=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
                   document.cookie = 'chatbot_email_new_=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
                   document.cookie = 'chatbot_sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
                 } catch (error) {
-                  console.log('Cookie clear failed');
+                  console.log('[clearUserData] Cookie clear failed', error); // LOG
                 }
                 localStorage.removeItem('chatbot_username_new_');
                 localStorage.removeItem('chatbot_email_new_');
                 localStorage.removeItem('chatbot_sessionId');
+                console.log('[clearUserData] Cleared user data from localStorage.'); // LOG
               }
               
-              // Get user info from cookies or set defaults
-              const userEmail = getCookie('chatbot_email_new_') || 'user@example.com';
-              const userName = getCookie('chatbot_username_new_') || 'User';
-              
-              // Check cookies on page load and hide form if user data exists
+              // On page load, hide form if user has data stored
               function checkUserDataOnLoad() {
                 const username = getCookie('chatbot_username_new_');
                 const email = getCookie('chatbot_email_new_');
                 const hasUserData = username && email && username.trim() !== '' && email.trim() !== '';
-                
+                console.log('[checkUserDataOnLoad]', {username, email, hasUserData}); // LOG
                 if (hasUserData) {
-                  // Ensure form is hidden on page load
                   const form = document.getElementById('userRegistrationForm');
                   if (form) {
                     form.style.display = 'none';
@@ -715,6 +722,7 @@
               const closeFullscreen = () => {
                 widget.style.display = "none";
                 document.body.style.overflow = "";
+                console.log('[closeFullscreen] Widget closed.'); // LOG
               };
               closeBtn.addEventListener("click", closeFullscreen);
               document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeFullscreen(); });
@@ -736,8 +744,9 @@
               const send = document.getElementById("send");
               const micBtn = document.getElementById("mic");
       
+              // Add a chat message row to chat UI (with bot or user styling)
               function addMsg(text, who = "user", saveToStorage = true) {
-                console.log('[addMsg] who:', who, 'text:', text, 'saveToStorage:', saveToStorage);
+                console.log('[addMsg] who:', who, 'text:', text, 'saveToStorage:', saveToStorage); // LOG
                 const row = document.createElement("div");
                 row.className = "msg-row " + (who === "user" ? "user" : "bot");
       
@@ -763,8 +772,9 @@
                 }
               }
       
-              // Typing indicator: avatar + who inside the SAME div (meta), as requested
+              // Add typing animation row to chat UI
               function addTyping() {
+                console.log('[addTyping] Typing indicator shown.'); // LOG
                 const row = document.createElement("div");
                 row.className = "msg-row bot";
                 row.id = "typing";
@@ -791,15 +801,17 @@
               function removeTyping() {
                 const t = document.getElementById("typing");
                 if (t) t.remove();
+                console.log('[removeTyping] Typing indicator removed.'); // LOG
               }
       
-              // API call function
+              // Calls the chat API and returns a promise with the response
               async function callChatAPI(message) {
-                console.log('[callChatAPI] message:', message);
+                console.log('[callChatAPI] message:', message); // LOG
                 try {
                   // Get current user data from cookies
-                    const currentUserEmail = getCookie('chatbot_email_new_') || userEmail;
+                  const currentUserEmail = getCookie('chatbot_email_new_') || userEmail;
                   const currentUserName = getCookie('chatbot_username_new_') || userName;
+                  console.log('[callChatAPI] userEmail:', currentUserEmail, 'userName:', currentUserName); // LOG
                   
                   const requestBody = {
                     assistant_name: botName,
@@ -826,15 +838,16 @@
                   const data = await response.json();
                   return data;
                 } catch (error) {
-                  console.error('API call failed:', error);
+                  console.error('[callChatAPI] API call failed:', error); // ERROR LOG
                   throw error;
                 }
               }
       
+              // Handle send from button or Enter
               function handleSend() {
-                console.log('[handleSend] called');
+                console.log('[handleSend] called'); // LOG
                 const text = (input.value || "").trim();
-                console.log('[handleSend] text:', text);
+                console.log('[handleSend] text:', text); // LOG
                 if (!text) return;
                 
                 // Add user message
@@ -857,14 +870,16 @@
                   })
                   .catch(error => {
                     removeTyping();
-                    console.error('Error:', error);
+                    console.error('[handleSend] Error:', error); // ERROR LOG
                     addMsg("Sorry, I'm having trouble connecting right now. Please try again later.", "bot");
                   });
               }
-              // Auto-resize textarea function
+              // Auto-resizes the textarea based on content
               function autoResizeTextarea(textarea) {
                 textarea.style.height = 'auto';
                 textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+                // LOG the new auto size
+                console.log('[autoResizeTextarea] set to:', textarea.style.height); 
               }
               
               // Add auto-resize functionality to the input textarea
@@ -965,7 +980,7 @@
                 });
               }
       
-              // Chips: both groups single-select with tick
+              // Single or multi-select chips by aria-pressed
               function toggleChips(containerId, multi = false) {
                 const wrap = document.getElementById(containerId);
                 if (!wrap) return;
@@ -979,6 +994,7 @@
                     const pressed = btn.getAttribute("aria-pressed") === "true";
                     btn.setAttribute("aria-pressed", String(!pressed));
                   }
+                  console.log('[toggleChips] changed', containerId, multi, wrap.querySelectorAll('.chip[aria-pressed="true"]').length); // LOG
                 });
               }
               toggleChips("topics", false);
